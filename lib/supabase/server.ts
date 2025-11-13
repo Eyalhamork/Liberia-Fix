@@ -1,0 +1,32 @@
+// lib/supabase/server.ts - FIXED VERSION
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/lib/types/database";
+
+export function createClient(p0: string, p1: string) {
+  const cookieStore = cookies();
+
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Handle the error in server components where cookies can't be set
+          }
+        },
+      },
+    }
+  );
+}
+
+// Alias for backward compatibility
+export const createServerSupabaseClient = createClient;
