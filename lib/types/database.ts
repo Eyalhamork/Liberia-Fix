@@ -1,4 +1,5 @@
 // lib/types/database.ts
+// Generated from actual Supabase schema
 
 export type Json =
   | string
@@ -11,6 +12,371 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          id: string;
+          admin_id: string;
+          action: string;
+          target_type: string;
+          target_id: string;
+          details: Json | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          admin_id: string;
+          action: string;
+          target_type: string;
+          target_id: string;
+          details?: Json | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          admin_id?: string;
+          action?: string;
+          target_type?: string;
+          target_id?: string;
+          details?: Json | null;
+          created_at?: string | null;
+        };
+      };
+      booking_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          booking_id: string | null;
+          type: string;
+          title: string;
+          message: string;
+          read: boolean | null;
+          read_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          booking_id?: string | null;
+          type: string;
+          title: string;
+          message: string;
+          read?: boolean | null;
+          read_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          booking_id?: string | null;
+          type?: string;
+          title?: string;
+          message?: string;
+          read?: boolean | null;
+          read_at?: string | null;
+          created_at?: string | null;
+        };
+      };
+      bookings: {
+        Row: {
+          id: string;
+          customer_id: string | null;
+          provider_id: string | null;
+          booking_fee: number | null;
+          payment_method: string | null;
+          payment_status: string | null;
+          payment_provider: string | null;
+          transaction_id: string | null;
+          service_description: string | null;
+          booking_date: string | null;
+          booking_status: string | null;
+          created_at: string | null;
+          paid_with_wallet: boolean | null;
+          wallet_transaction_id: string | null;
+        };
+        Insert: {
+          id: string;
+          customer_id?: string | null;
+          provider_id?: string | null;
+          booking_fee?: number | null;
+          payment_method?: string | null;
+          payment_status?: string | null;
+          payment_provider?: string | null;
+          transaction_id?: string | null;
+          service_description?: string | null;
+          booking_date?: string | null;
+          booking_status?: string | null;
+          created_at?: string | null;
+          paid_with_wallet?: boolean | null;
+          wallet_transaction_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string | null;
+          provider_id?: string | null;
+          booking_fee?: number | null;
+          payment_method?: string | null;
+          payment_status?: string | null;
+          payment_provider?: string | null;
+          transaction_id?: string | null;
+          service_description?: string | null;
+          booking_date?: string | null;
+          booking_status?: string | null;
+          created_at?: string | null;
+          paid_with_wallet?: boolean | null;
+          wallet_transaction_id?: string | null;
+        };
+      };
+      content_reports: {
+        Row: {
+          id: string;
+          reporter_id: string;
+          content_type: string;
+          content_id: string;
+          reason: string;
+          description: string | null;
+          status: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          action_taken: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          reporter_id: string;
+          content_type: string;
+          content_id: string;
+          reason: string;
+          description?: string | null;
+          status?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          action_taken?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          reporter_id?: string;
+          content_type?: string;
+          content_id?: string;
+          reason?: string;
+          description?: string | null;
+          status?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          action_taken?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      custom_request_views: {
+        Row: {
+          id: string;
+          service_request_id: string;
+          provider_id: string;
+          subscription_tier_at_view: string;
+          viewed_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          service_request_id: string;
+          provider_id: string;
+          subscription_tier_at_view: string;
+          viewed_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          service_request_id?: string;
+          provider_id?: string;
+          subscription_tier_at_view?: string;
+          viewed_at?: string | null;
+          created_at?: string | null;
+        };
+      };
+      customer_memberships: {
+        Row: {
+          id: string;
+          customer_id: string | null;
+          membership_type: string | null;
+          status: string | null;
+          amount: number | null;
+          starts_at: string | null;
+          expires_at: string | null;
+          auto_renew: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          customer_id?: string | null;
+          membership_type?: string | null;
+          status?: string | null;
+          amount?: number | null;
+          starts_at?: string | null;
+          expires_at?: string | null;
+          auto_renew?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string | null;
+          membership_type?: string | null;
+          status?: string | null;
+          amount?: number | null;
+          starts_at?: string | null;
+          expires_at?: string | null;
+          auto_renew?: boolean | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      fraud_alerts: {
+        Row: {
+          id: string;
+          user_id: string;
+          fraud_type: string;
+          severity: string;
+          evidence: Json | null;
+          auto_blocked: boolean | null;
+          status: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          action_taken: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          fraud_type: string;
+          severity: string;
+          evidence?: Json | null;
+          auto_blocked?: boolean | null;
+          status?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          action_taken?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          fraud_type?: string;
+          severity?: string;
+          evidence?: Json | null;
+          auto_blocked?: boolean | null;
+          status?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          action_taken?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      messages: {
+        Row: {
+          id: string;
+          sender_id: string;
+          receiver_id: string;
+          booking_id: string | null;
+          service_request_id: string | null;
+          message: string;
+          read: boolean | null;
+          created_at: string | null;
+          expires_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          sender_id: string;
+          receiver_id: string;
+          booking_id?: string | null;
+          service_request_id?: string | null;
+          message: string;
+          read?: boolean | null;
+          created_at?: string | null;
+          expires_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          sender_id?: string;
+          receiver_id?: string;
+          booking_id?: string | null;
+          service_request_id?: string | null;
+          message?: string;
+          read?: boolean | null;
+          created_at?: string | null;
+          expires_at?: string | null;
+        };
+      };
+      notification_logs: {
+        Row: {
+          id: string;
+          notification_id: string | null;
+          user_id: string;
+          channel: string;
+          status: string;
+          error_message: string | null;
+          metadata: Json | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          notification_id?: string | null;
+          user_id: string;
+          channel: string;
+          status: string;
+          error_message?: string | null;
+          metadata?: Json | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          notification_id?: string | null;
+          user_id?: string;
+          channel?: string;
+          status?: string;
+          error_message?: string | null;
+          metadata?: Json | null;
+          created_at?: string | null;
+        };
+      };
+      notification_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          push_enabled: boolean | null;
+          email_enabled: boolean | null;
+          sms_enabled: boolean | null;
+          quiet_hours_enabled: boolean | null;
+          quiet_hours_start: string | null;
+          quiet_hours_end: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          push_enabled?: boolean | null;
+          email_enabled?: boolean | null;
+          sms_enabled?: boolean | null;
+          quiet_hours_enabled?: boolean | null;
+          quiet_hours_start?: string | null;
+          quiet_hours_end?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          push_enabled?: boolean | null;
+          email_enabled?: boolean | null;
+          sms_enabled?: boolean | null;
+          quiet_hours_enabled?: boolean | null;
+          quiet_hours_start?: string | null;
+          quiet_hours_end?: string | null;
+        };
+      };
       profiles: {
         Row: {
           id: string;
@@ -18,10 +384,15 @@ export interface Database {
           full_name: string | null;
           phone: string | null;
           avatar_url: string | null;
-          user_type: "customer" | "provider" | "admin";
+          user_type: string | null;
           location: string | null;
-          created_at: string;
-          updated_at: string;
+          created_at: string | null;
+          updated_at: string | null;
+          onboarding_completed: boolean | null;
+          is_admin: boolean | null;
+          blocked_reason: string | null;
+          blocked_at: string | null;
+          wallet_balance: number | null;
         };
         Insert: {
           id: string;
@@ -29,10 +400,15 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
-          user_type?: "customer" | "provider" | "admin";
+          user_type?: string | null;
           location?: string | null;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          onboarding_completed?: boolean | null;
+          is_admin?: boolean | null;
+          blocked_reason?: string | null;
+          blocked_at?: string | null;
+          wallet_balance?: number | null;
         };
         Update: {
           id?: string;
@@ -40,108 +416,125 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
-          user_type?: "customer" | "provider" | "admin";
+          user_type?: string | null;
           location?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      service_categories: {
-        Row: {
-          id: string;
-          name: string;
-          icon: string | null;
-          description: string | null;
-          active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          icon?: string | null;
-          description?: string | null;
-          active?: boolean;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          icon?: string | null;
-          description?: string | null;
-          active?: boolean;
-          created_at?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
+          onboarding_completed?: boolean | null;
+          is_admin?: boolean | null;
+          blocked_reason?: string | null;
+          blocked_at?: string | null;
+          wallet_balance?: number | null;
         };
       };
       providers: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
           business_name: string | null;
           description: string | null;
           hourly_rate: number | null;
           response_time: string | null;
-          subscription_tier: "free" | "pro"; // Removed "elite"
-          verified: boolean;
-          active: boolean;
-          total_rating: number;
-          review_count: number;
-          // New Pro tier features
+          subscription_tier: string | null;
+          verified: boolean | null;
+          active: boolean | null;
+          total_rating: number | null;
+          review_count: number | null;
+          created_at: string | null;
+          updated_at: string | null;
           business_hours: Json | null;
           service_area_radius: number | null;
-          service_area_coordinates: string | null; // PostGIS POINT
+          service_area_coordinates: string | null;
           multiple_locations: Json | null;
-          priority_response: boolean;
-          facebook_ad_active: boolean;
-          photo_count: number;
-          category_count: number;
-          created_at: string;
-          updated_at: string;
+          priority_response: boolean | null;
+          facebook_ad_active: boolean | null;
+          photo_count: number | null;
+          category_count: number | null;
+          free_bids_used_this_month: number | null;
+          free_bids_reset_at: string | null;
+          promo_expires_at: string | null;
+          id_verification_status: string | null;
+          id_submitted_at: string | null;
+          id_verified_at: string | null;
+          national_id_front_url: string | null;
+          national_id_back_url: string | null;
+          original_tier: string | null;
+          verification_status: string | null;
+          verification_submitted_at: string | null;
+          profile_views: number | null;
+          last_upgrade_prompt: string | null;
         };
         Insert: {
           id?: string;
-          user_id: string;
+          user_id?: string | null;
           business_name?: string | null;
           description?: string | null;
           hourly_rate?: number | null;
           response_time?: string | null;
-          subscription_tier?: "free" | "pro";
-          verified?: boolean;
-          active?: boolean;
-          total_rating?: number;
-          review_count?: number;
+          subscription_tier?: string | null;
+          verified?: boolean | null;
+          active?: boolean | null;
+          total_rating?: number | null;
+          review_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
           business_hours?: Json | null;
           service_area_radius?: number | null;
           service_area_coordinates?: string | null;
           multiple_locations?: Json | null;
-          priority_response?: boolean;
-          facebook_ad_active?: boolean;
-          photo_count?: number;
-          category_count?: number;
-          created_at?: string;
-          updated_at?: string;
+          priority_response?: boolean | null;
+          facebook_ad_active?: boolean | null;
+          photo_count?: number | null;
+          category_count?: number | null;
+          free_bids_used_this_month?: number | null;
+          free_bids_reset_at?: string | null;
+          promo_expires_at?: string | null;
+          id_verification_status?: string | null;
+          id_submitted_at?: string | null;
+          id_verified_at?: string | null;
+          national_id_front_url?: string | null;
+          national_id_back_url?: string | null;
+          original_tier?: string | null;
+          verification_status?: string | null;
+          verification_submitted_at?: string | null;
+          profile_views?: number | null;
+          last_upgrade_prompt?: string | null;
         };
         Update: {
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
           business_name?: string | null;
           description?: string | null;
           hourly_rate?: number | null;
           response_time?: string | null;
-          subscription_tier?: "free" | "pro";
-          verified?: boolean;
-          active?: boolean;
-          total_rating?: number;
-          review_count?: number;
+          subscription_tier?: string | null;
+          verified?: boolean | null;
+          active?: boolean | null;
+          total_rating?: number | null;
+          review_count?: number | null;
+          created_at?: string | null;
+          updated_at?: string | null;
           business_hours?: Json | null;
           service_area_radius?: number | null;
           service_area_coordinates?: string | null;
           multiple_locations?: Json | null;
-          priority_response?: boolean;
-          facebook_ad_active?: boolean;
-          photo_count?: number;
-          category_count?: number;
-          created_at?: string;
-          updated_at?: string;
+          priority_response?: boolean | null;
+          facebook_ad_active?: boolean | null;
+          photo_count?: number | null;
+          category_count?: number | null;
+          free_bids_used_this_month?: number | null;
+          free_bids_reset_at?: string | null;
+          promo_expires_at?: string | null;
+          id_verification_status?: string | null;
+          id_submitted_at?: string | null;
+          id_verified_at?: string | null;
+          national_id_front_url?: string | null;
+          national_id_back_url?: string | null;
+          original_tier?: string | null;
+          verification_status?: string | null;
+          verification_submitted_at?: string | null;
+          profile_views?: number | null;
+          last_upgrade_prompt?: string | null;
         };
       };
       provider_photos: {
@@ -152,7 +545,7 @@ export interface Database {
           is_profile_photo: boolean;
           caption: string | null;
           order_index: number;
-          created_at: string;
+          created_at: string | null;
         };
         Insert: {
           id?: string;
@@ -161,7 +554,7 @@ export interface Database {
           is_profile_photo?: boolean;
           caption?: string | null;
           order_index?: number;
-          created_at?: string;
+          created_at?: string | null;
         };
         Update: {
           id?: string;
@@ -170,7 +563,7 @@ export interface Database {
           is_profile_photo?: boolean;
           caption?: string | null;
           order_index?: number;
-          created_at?: string;
+          created_at?: string | null;
         };
       };
       provider_services: {
@@ -180,7 +573,7 @@ export interface Database {
           service_category_id: string;
           custom_description: string | null;
           price: number | null;
-          created_at: string;
+          created_at: string | null;
         };
         Insert: {
           id?: string;
@@ -188,7 +581,7 @@ export interface Database {
           service_category_id: string;
           custom_description?: string | null;
           price?: number | null;
-          created_at?: string;
+          created_at?: string | null;
         };
         Update: {
           id?: string;
@@ -196,214 +589,554 @@ export interface Database {
           service_category_id?: string;
           custom_description?: string | null;
           price?: number | null;
-          created_at?: string;
-        };
-      };
-      customer_memberships: {
-        Row: {
-          id: string;
-          customer_id: string;
-          membership_type: "unlimited_monthly";
-          status: "active" | "cancelled" | "expired";
-          amount: number;
-          starts_at: string;
-          expires_at: string | null;
-          auto_renew: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id: string;
-          membership_type?: "unlimited_monthly";
-          status?: "active" | "cancelled" | "expired";
-          amount?: number;
-          starts_at?: string;
-          expires_at?: string | null;
-          auto_renew?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string;
-          membership_type?: "unlimited_monthly";
-          status?: "active" | "cancelled" | "expired";
-          amount?: number;
-          starts_at?: string;
-          expires_at?: string | null;
-          auto_renew?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      bookings: {
-        Row: {
-          id: string;
-          customer_id: string;
-          provider_id: string;
-          booking_fee: number;
-          payment_method: "pay_per_booking" | "membership";
-          payment_status: "pending" | "completed" | "failed";
-          payment_provider: string | null;
-          transaction_id: string | null;
-          service_description: string | null;
-          booking_date: string | null;
-          booking_status: "pending" | "confirmed" | "completed" | "cancelled";
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          customer_id: string;
-          provider_id: string;
-          booking_fee?: number;
-          payment_method: "pay_per_booking" | "membership";
-          payment_status?: "pending" | "completed" | "failed";
-          payment_provider?: string | null;
-          transaction_id?: string | null;
-          service_description?: string | null;
-          booking_date?: string | null;
-          booking_status?: "pending" | "confirmed" | "completed" | "cancelled";
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          customer_id?: string;
-          provider_id?: string;
-          booking_fee?: number;
-          payment_method?: "pay_per_booking" | "membership";
-          payment_status?: "pending" | "completed" | "failed";
-          payment_provider?: string | null;
-          transaction_id?: string | null;
-          service_description?: string | null;
-          booking_date?: string | null;
-          booking_status?: "pending" | "confirmed" | "completed" | "cancelled";
-          created_at?: string;
-        };
-      };
-      reviews: {
-        Row: {
-          id: string;
-          booking_id: string;
-          customer_id: string;
-          provider_id: string;
-          rating: number;
-          comment: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          booking_id: string;
-          customer_id: string;
-          provider_id: string;
-          rating: number;
-          comment?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          booking_id?: string;
-          customer_id?: string;
-          provider_id?: string;
-          rating?: number;
-          comment?: string | null;
-          created_at?: string;
+          created_at?: string | null;
         };
       };
       provider_subscriptions: {
         Row: {
           id: string;
-          provider_id: string;
-          tier: "pro"; // Removed "elite"
-          status: "active" | "cancelled" | "expired";
+          provider_id: string | null;
+          tier: string;
+          status: string | null;
           amount: number;
-          starts_at: string;
+          starts_at: string | null;
           expires_at: string | null;
-          auto_renew: boolean;
-          created_at: string;
+          created_at: string | null;
+          auto_renew: boolean | null;
         };
         Insert: {
           id?: string;
-          provider_id: string;
-          tier: "pro";
-          status?: "active" | "cancelled" | "expired";
+          provider_id?: string | null;
+          tier: string;
+          status?: string | null;
           amount: number;
-          starts_at?: string;
+          starts_at?: string | null;
           expires_at?: string | null;
-          auto_renew?: boolean;
-          created_at?: string;
+          created_at?: string | null;
+          auto_renew?: boolean | null;
         };
         Update: {
           id?: string;
-          provider_id?: string;
-          tier?: "pro";
-          status?: "active" | "cancelled" | "expired";
+          provider_id?: string | null;
+          tier?: string;
+          status?: string | null;
           amount?: number;
-          starts_at?: string;
+          starts_at?: string | null;
           expires_at?: string | null;
-          auto_renew?: boolean;
-          created_at?: string;
+          created_at?: string | null;
+          auto_renew?: boolean | null;
+        };
+      };
+      reviews: {
+        Row: {
+          id: string;
+          booking_id: string | null;
+          customer_id: string | null;
+          provider_id: string | null;
+          rating: number | null;
+          comment: string | null;
+          created_at: string | null;
+          status: string | null;
+          flagged_reason: string | null;
+          helpful_count: number | null;
+          updated_at: string | null;
+          provider_response: string | null;
+          responded_at: string | null;
+          punctuality_rating: number | null;
+          quality_rating: number | null;
+          professionalism_rating: number | null;
+          value_rating: number | null;
+        };
+        Insert: {
+          id?: string;
+          booking_id?: string | null;
+          customer_id?: string | null;
+          provider_id?: string | null;
+          rating?: number | null;
+          comment?: string | null;
+          created_at?: string | null;
+          status?: string | null;
+          flagged_reason?: string | null;
+          helpful_count?: number | null;
+          updated_at?: string | null;
+          provider_response?: string | null;
+          responded_at?: string | null;
+          punctuality_rating?: number | null;
+          quality_rating?: number | null;
+          professionalism_rating?: number | null;
+          value_rating?: number | null;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string | null;
+          customer_id?: string | null;
+          provider_id?: string | null;
+          rating?: number | null;
+          comment?: string | null;
+          created_at?: string | null;
+          status?: string | null;
+          flagged_reason?: string | null;
+          helpful_count?: number | null;
+          updated_at?: string | null;
+          provider_response?: string | null;
+          responded_at?: string | null;
+          punctuality_rating?: number | null;
+          quality_rating?: number | null;
+          professionalism_rating?: number | null;
+          value_rating?: number | null;
+        };
+      };
+      service_categories: {
+        Row: {
+          id: string;
+          name: string;
+          icon: string | null;
+          description: string | null;
+          active: boolean | null;
+          created_at: string | null;
+          domain: string | null;
+          search_keywords: string | null;
+          monthly_searches: number | null;
+          display_order: number | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          icon?: string | null;
+          description?: string | null;
+          active?: boolean | null;
+          created_at?: string | null;
+          domain?: string | null;
+          search_keywords?: string | null;
+          monthly_searches?: number | null;
+          display_order?: number | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          icon?: string | null;
+          description?: string | null;
+          active?: boolean | null;
+          created_at?: string | null;
+          domain?: string | null;
+          search_keywords?: string | null;
+          monthly_searches?: number | null;
+          display_order?: number | null;
+        };
+      };
+      service_requests: {
+        Row: {
+          id: string;
+          customer_id: string;
+          title: string;
+          description: string;
+          location: string;
+          budget_min: number | null;
+          budget_max: number | null;
+          budget_type: string | null;
+          urgency: string;
+          preferred_time: string | null;
+          photo_urls: string[] | null;
+          status: string | null;
+          payment_status: string | null;
+          payment_amount: number | null;
+          transaction_id: string | null;
+          views_count: number | null;
+          bid_count: number | null;
+          selected_provider_count: number | null;
+          created_at: string | null;
+          activated_at: string | null;
+          expires_at: string | null;
+          closed_at: string | null;
+          updated_at: string | null;
+          paid_at: string | null;
+          bids_count: number | null;
+          service_category_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          title: string;
+          description: string;
+          location: string;
+          budget_min?: number | null;
+          budget_max?: number | null;
+          budget_type?: string | null;
+          urgency: string;
+          preferred_time?: string | null;
+          photo_urls?: string[] | null;
+          status?: string | null;
+          payment_status?: string | null;
+          payment_amount?: number | null;
+          transaction_id?: string | null;
+          views_count?: number | null;
+          bid_count?: number | null;
+          selected_provider_count?: number | null;
+          created_at?: string | null;
+          activated_at?: string | null;
+          expires_at?: string | null;
+          closed_at?: string | null;
+          updated_at?: string | null;
+          paid_at?: string | null;
+          bids_count?: number | null;
+          service_category_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          title?: string;
+          description?: string;
+          location?: string;
+          budget_min?: number | null;
+          budget_max?: number | null;
+          budget_type?: string | null;
+          urgency?: string;
+          preferred_time?: string | null;
+          photo_urls?: string[] | null;
+          status?: string | null;
+          payment_status?: string | null;
+          payment_amount?: number | null;
+          transaction_id?: string | null;
+          views_count?: number | null;
+          bid_count?: number | null;
+          selected_provider_count?: number | null;
+          created_at?: string | null;
+          activated_at?: string | null;
+          expires_at?: string | null;
+          closed_at?: string | null;
+          updated_at?: string | null;
+          paid_at?: string | null;
+          bids_count?: number | null;
+          service_category_id?: string | null;
+        };
+      };
+      service_request_bids: {
+        Row: {
+          id: string;
+          request_id: string;
+          provider_id: string;
+          amount: number;
+          estimated_completion_time: string | null;
+          message: string;
+          status: string | null;
+          viewed_by_customer: boolean | null;
+          viewed_at: string | null;
+          selected_at: string | null;
+          rejected_at: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+          availability: string | null;
+          estimated_duration: string | null;
+        };
+        Insert: {
+          id?: string;
+          request_id: string;
+          provider_id: string;
+          amount: number;
+          estimated_completion_time?: string | null;
+          message: string;
+          status?: string | null;
+          viewed_by_customer?: boolean | null;
+          viewed_at?: string | null;
+          selected_at?: string | null;
+          rejected_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          availability?: string | null;
+          estimated_duration?: string | null;
+        };
+        Update: {
+          id?: string;
+          request_id?: string;
+          provider_id?: string;
+          amount?: number;
+          estimated_completion_time?: string | null;
+          message?: string;
+          status?: string | null;
+          viewed_by_customer?: boolean | null;
+          viewed_at?: string | null;
+          selected_at?: string | null;
+          rejected_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+          availability?: string | null;
+          estimated_duration?: string | null;
         };
       };
       transactions: {
         Row: {
           id: string;
-          user_id: string;
-          type:
-            | "booking_fee"
-            | "provider_subscription"
-            | "customer_membership"
-            | "refund";
+          user_id: string | null;
+          type: string;
           amount: number;
-          status: "pending" | "completed" | "failed";
+          status: string | null;
           payment_method: string | null;
           external_transaction_id: string | null;
+          metadata: Json | null;
+          created_at: string | null;
           related_booking_id: string | null;
           related_subscription_id: string | null;
           related_membership_id: string | null;
-          metadata: Json | null;
-          created_at: string;
+          related_service_request_id: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          type: string;
+          amount: number;
+          status?: string | null;
+          payment_method?: string | null;
+          external_transaction_id?: string | null;
+          metadata?: Json | null;
+          created_at?: string | null;
+          related_booking_id?: string | null;
+          related_subscription_id?: string | null;
+          related_membership_id?: string | null;
+          related_service_request_id?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          type?: string;
+          amount?: number;
+          status?: string | null;
+          payment_method?: string | null;
+          external_transaction_id?: string | null;
+          metadata?: Json | null;
+          created_at?: string | null;
+          related_booking_id?: string | null;
+          related_subscription_id?: string | null;
+          related_membership_id?: string | null;
+          related_service_request_id?: string | null;
+        };
+      };
+      disputes: {
+        Row: {
+          id: string;
+          booking_id: string;
+          complainant_id: string;
+          respondent_id: string;
+          reason: string;
+          description: string;
+          status: string;
+          resolution: string | null;
+          resolved_by: string | null;
+          resolved_at: string | null;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          booking_id: string;
+          complainant_id: string;
+          respondent_id: string;
+          reason: string;
+          description: string;
+          status?: string;
+          resolution?: string | null;
+          resolved_by?: string | null;
+          resolved_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          booking_id?: string;
+          complainant_id?: string;
+          respondent_id?: string;
+          reason?: string;
+          description?: string;
+          status?: string;
+          resolution?: string | null;
+          resolved_by?: string | null;
+          resolved_at?: string | null;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
+      verification_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          document_type: string;
+          document_number: string | null;
+          document_url: string | null;
+          selfie_url: string | null;
+          status: string;
+          rejection_reason: string | null;
+          submitted_at: string | null;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          created_at: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
-          type:
-            | "booking_fee"
-            | "provider_subscription"
-            | "customer_membership"
-            | "refund";
-          amount: number;
-          status?: "pending" | "completed" | "failed";
-          payment_method?: string | null;
-          external_transaction_id?: string | null;
-          related_booking_id?: string | null;
-          related_subscription_id?: string | null;
-          related_membership_id?: string | null;
-          metadata?: Json | null;
-          created_at?: string;
+          document_type: string;
+          document_number?: string | null;
+          document_url?: string | null;
+          selfie_url?: string | null;
+          status?: string;
+          rejection_reason?: string | null;
+          submitted_at?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          created_at?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string;
-          type?:
-            | "booking_fee"
-            | "provider_subscription"
-            | "customer_membership"
-            | "refund";
-          amount?: number;
-          status?: "pending" | "completed" | "failed";
-          payment_method?: string | null;
-          external_transaction_id?: string | null;
-          related_booking_id?: string | null;
-          related_subscription_id?: string | null;
-          related_membership_id?: string | null;
+          document_type?: string;
+          document_number?: string | null;
+          document_url?: string | null;
+          selfie_url?: string | null;
+          status?: string;
+          rejection_reason?: string | null;
+          submitted_at?: string | null;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          created_at?: string | null;
+        };
+      };
+      wallet_transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          amount: number;
+          credits_amount: number;
+          balance_before: number;
+          balance_after: number;
+          description: string | null;
+          reference_id: string | null;
+          payment_transaction_id: string | null;
+          metadata: Json | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          amount: number;
+          credits_amount: number;
+          balance_before: number;
+          balance_after: number;
+          description?: string | null;
+          reference_id?: string | null;
+          payment_transaction_id?: string | null;
           metadata?: Json | null;
-          created_at?: string;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          amount?: number;
+          credits_amount?: number;
+          balance_before?: number;
+          balance_after?: number;
+          description?: string | null;
+          reference_id?: string | null;
+          payment_transaction_id?: string | null;
+          metadata?: Json | null;
+          created_at?: string | null;
+        };
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          endpoint?: string;
+          p256dh?: string;
+          auth?: string;
+          created_at?: string | null;
+        };
+      };
+      promotional_codes: {
+        Row: {
+          id: string;
+          code: string;
+          discount_type: string;
+          discount_value: number;
+          max_uses: number | null;
+          current_uses: number;
+          expires_at: string | null;
+          active: boolean;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          discount_type: string;
+          discount_value: number;
+          max_uses?: number | null;
+          current_uses?: number;
+          expires_at?: string | null;
+          active?: boolean;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          discount_type?: string;
+          discount_value?: number;
+          max_uses?: number | null;
+          current_uses?: number;
+          expires_at?: string | null;
+          active?: boolean;
+          created_at?: string | null;
+        };
+      };
+      user_wallets: {
+        Row: {
+          id: string;
+          user_id: string;
+          balance: number;
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          balance?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          balance?: number;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
       };
     };
     Views: {
-      [_ in never]: never;
+      daily_revenue_summary: {
+        Row: {
+          date: string | null;
+          transaction_count: number | null;
+          booking_revenue: number | null;
+          subscription_revenue: number | null;
+          total_revenue: number | null;
+        };
+      };
     };
     Functions: {
       [_ in never]: never;
@@ -415,28 +1148,44 @@ export interface Database {
 }
 
 // Helper types for the application
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
+export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+
 export type Provider = Database["public"]["Tables"]["providers"]["Row"];
-export type ProviderInsert =
-  Database["public"]["Tables"]["providers"]["Insert"];
-export type ProviderUpdate =
-  Database["public"]["Tables"]["providers"]["Update"];
+export type ProviderInsert = Database["public"]["Tables"]["providers"]["Insert"];
+export type ProviderUpdate = Database["public"]["Tables"]["providers"]["Update"];
 
 export type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 export type BookingInsert = Database["public"]["Tables"]["bookings"]["Insert"];
 export type BookingUpdate = Database["public"]["Tables"]["bookings"]["Update"];
 
-export type CustomerMembership =
-  Database["public"]["Tables"]["customer_memberships"]["Row"];
-export type CustomerMembershipInsert =
-  Database["public"]["Tables"]["customer_memberships"]["Insert"];
-export type CustomerMembershipUpdate =
-  Database["public"]["Tables"]["customer_memberships"]["Update"];
+export type CustomerMembership = Database["public"]["Tables"]["customer_memberships"]["Row"];
+export type CustomerMembershipInsert = Database["public"]["Tables"]["customer_memberships"]["Insert"];
+export type CustomerMembershipUpdate = Database["public"]["Tables"]["customer_memberships"]["Update"];
 
-export type ProviderSubscription =
-  Database["public"]["Tables"]["provider_subscriptions"]["Row"];
-export type ProviderPhoto =
-  Database["public"]["Tables"]["provider_photos"]["Row"];
-export type ServiceCategory =
-  Database["public"]["Tables"]["service_categories"]["Row"];
+export type ProviderSubscription = Database["public"]["Tables"]["provider_subscriptions"]["Row"];
+export type ProviderPhoto = Database["public"]["Tables"]["provider_photos"]["Row"];
+export type ServiceCategory = Database["public"]["Tables"]["service_categories"]["Row"];
 export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
+
+export type ServiceRequest = Database["public"]["Tables"]["service_requests"]["Row"];
+export type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
+export type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
+
+export type ServiceRequestResponse = Database["public"]["Tables"]["service_request_responses"]["Row"];
+export type ServiceRequestBid = Database["public"]["Tables"]["service_request_bids"]["Row"];
+export type ServiceRequestBidInsert = Database["public"]["Tables"]["service_request_bids"]["Insert"];
+export type Message = Database["public"]["Tables"]["messages"]["Row"];
+export type BookingNotification = Database["public"]["Tables"]["booking_notifications"]["Row"];
+export type Dispute = Database["public"]["Tables"]["disputes"]["Row"];
+export type VerificationRequest = Database["public"]["Tables"]["verification_requests"]["Row"];
+export type WalletTransaction = Database["public"]["Tables"]["wallet_transactions"]["Row"];
+export type UserWallet = Database["public"]["Tables"]["user_wallets"]["Row"];
+export type AdminActivityLog = Database["public"]["Tables"]["admin_activity_log"]["Row"];
+export type ContentReport = Database["public"]["Tables"]["content_reports"]["Row"];
+export type FraudAlert = Database["public"]["Tables"]["fraud_alerts"]["Row"];
+export type NotificationPreference = Database["public"]["Tables"]["notification_preferences"]["Row"];
+export type PushSubscription = Database["public"]["Tables"]["push_subscriptions"]["Row"];
+export type PromotionalCode = Database["public"]["Tables"]["promotional_codes"]["Row"];

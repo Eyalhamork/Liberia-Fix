@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import AdminSidebar from "@/components/admin/sidebar";
 import AdminHeader from "@/components/admin/header";
 
+// Force dynamic rendering for admin pages (requires authentication)
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Admin Dashboard - LiberiaFix",
   description: "LiberiaFix Admin Dashboard",
@@ -14,7 +17,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Check authentication
   const {

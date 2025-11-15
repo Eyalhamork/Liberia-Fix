@@ -2,8 +2,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+// Force dynamic rendering (requires authentication check)
+export const dynamic = "force-dynamic";
+
 export default async function RootPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Get current user session
   const {

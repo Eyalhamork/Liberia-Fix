@@ -1,4 +1,4 @@
-// components/service-requests/locked-request-card.tsx
+// components/service-requests/locked-request-card.tsx - NEW FILE
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -79,7 +79,7 @@ export function LockedRequestCard({
                   onClick={() => router.push("/provider/upgrade")}
                   className="w-full px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all"
                 >
-                  Upgrade to Pro - $20/month
+                  Upgrade to Pro - $10/month
                 </button>
               </>
             ) : (
@@ -87,7 +87,7 @@ export function LockedRequestCard({
                 onClick={() => router.push("/provider/upgrade")}
                 className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
               >
-                Upgrade Now - $20/month
+                Upgrade Now - $10/month
               </button>
             )}
           </div>

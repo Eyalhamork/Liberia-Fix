@@ -1,7 +1,7 @@
 // app/search/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PullToRefresh } from "@/components/layout/pull-to-refresh";
 
@@ -59,7 +59,7 @@ const LOCATIONS = [
   "Freeport",
 ];
 
-export default function SmartSearchPage() {
+function SmartSearchPageContent() {
   const router = useRouter();
   const handleRefresh = async () => {
     // Refresh data
@@ -984,5 +984,18 @@ export default function SmartSearchPage() {
         </div>
       </div>
     </PullToRefresh>
+  );
+}
+
+// Wrapper component with Suspense for useSearchParams
+export default function SmartSearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    }>
+      <SmartSearchPageContent />
+    </Suspense>
   );
 }
