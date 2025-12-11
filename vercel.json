@@ -1,60 +1,9 @@
 {
   "crons": [
     {
-      "path": "/api/cron/process-billing",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/expire-subscriptions",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/process-retries",
-      "schedule": "*/30 * * * *"
-    },
-    {
-      "path": "/api/cron/check-promo-expiry",
-      "schedule": "0 3 * * *"
-    },
-    {
-      "path": "/api/cron/expire-subscriptions",
-      "schedule": "0 1 * * *"
-    },
-    {
-      "path": "/api/cron/check-expiring-requests",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/check-subscription-renewals",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/send-review-reminders",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/send-upgrade-prompts",
-      "schedule": "0 10 * * *"
-    },
-    {
-      "path": "/api/cron/monitor-gateways",
-      "schedule": "*/5 * * * *",
-      "comment": "BATCH 6: Payment gateway health checks every 5 minutes"
-    },
-    {
-      "path": "/api/cron/send-weekly-reports",
-      "schedule": "0 9 * * 1",
-      "comment": "BATCH 7: Weekly reports for providers every Monday at 9 AM UTC"
-    },
-    {
-      "path": "/api/cron/send-monthly-reports",
-      "schedule": "0 9 1 * *",
-      "comment": "BATCH 7: Monthly reports on 1st of month at 9 AM UTC"
-    },
-    {
-      "path": "/api/cron/send-daily-admin-reports",
-      "schedule": "0 8 * * *",
-      "comment": "BATCH 7: Daily admin reports at 8 AM UTC (includes weekly growth on Mondays)"
+      "path": "/api/cron/master",
+      "schedule": "0 2 * * *",
+      "comment": "Master cron job - Runs all daily tasks at 2 AM UTC (Vercel Hobby plan compatible)"
     }
   ]
 }
