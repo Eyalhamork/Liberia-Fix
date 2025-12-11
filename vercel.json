@@ -2,8 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/master",
-      "schedule": "0 2 * * *",
-      "comment": "Master cron job - Runs all daily tasks at 2 AM UTC (Vercel Hobby plan compatible)"
+      "schedule": "0 2 * * *"
     }
   ]
 }
