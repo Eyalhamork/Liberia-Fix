@@ -22,10 +22,10 @@ export async function GET(request: NextRequest) {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    ) as any;
 
     const mtnService = createMTNMoMoService();
-    const paymentService = createPaymentService(supabase, mtnService);
+    const paymentService = createPaymentService() as any;
     const subscriptionService = new SubscriptionService(
       supabase,
       paymentService
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     console.log("Starting payment retries process...");
 
-    const results = await subscriptionService.processPaymentRetries();
+    const results = await subscriptionService.processPaymentRetries() as any;
 
     console.log("Payment retries process completed:", results);
 

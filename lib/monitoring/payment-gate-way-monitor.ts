@@ -38,7 +38,7 @@ async function logHealthCheck(check: GatewayHealthCheck): Promise<void> {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    await supabase.from("payment_gateway_health").insert({
+    await (supabase as any).from("payment_gateway_health").insert({
       gateway: check.gateway,
       status: check.status,
       response_time_ms: check.responseTime,

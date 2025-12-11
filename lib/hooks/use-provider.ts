@@ -10,8 +10,8 @@ export function useProvider(providerId: string) {
   return useQuery({
     queryKey: ["provider", providerId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("providers")
+      const { data, error } = await (supabase as any)
+      .from("providers")
         .select(
           `
           id,
@@ -56,11 +56,11 @@ export function useProvider(providerId: string) {
           )
         `
         )
-        .eq("id", providerId)
+        .eq("id", providerId as string)
         .eq("active", true)
         .limit(20, { foreignTable: "reviews" })
         .limit(20, { foreignTable: "provider_photos" })
-        .single();
+        .single() as { data: any; error: any };
 
       if (error) throw error;
       if (!data) throw new Error("Provider not found");

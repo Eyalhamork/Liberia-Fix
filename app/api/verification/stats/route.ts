@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // Verify admin authentication
@@ -16,11 +16,11 @@ export async function GET(request: Request) {
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from("profiles")
       .select("user_type")
       .eq("id", user.id)
-      .single();
+      .single() as { data: { user_type: string | null } | null };
 
     if (!profile || profile.user_type !== "admin") {
       return NextResponse.json(
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     }
 
     // Get verification statistics
-    const { data: stats, error } = await supabase
+    const { data: stats, error } = await (supabase as any)
       .from("verification_stats")
       .select("*")
       .single();

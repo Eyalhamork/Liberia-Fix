@@ -149,10 +149,10 @@ export default function AdminVerificationsPage() {
       if (!user) throw new Error("Not authenticated");
 
       // Call approve function
-      const { data, error } = await supabase.rpc("approve_verification", {
+      const { data, error } = await (supabase as any).rpc("approve_verification", {
         p_verification_id: selectedVerification.id,
         p_admin_id: user.id,
-      });
+      } as any);
 
       if (error) {
         // Fallback if function doesn't exist - direct API call
@@ -198,12 +198,12 @@ export default function AdminVerificationsPage() {
       if (!user) throw new Error("Not authenticated");
 
       // Call reject function
-      const { data, error } = await supabase.rpc("reject_verification", {
+      const { data, error } = await (supabase as any).rpc("reject_verification", {
         p_verification_id: selectedVerification.id,
         p_admin_id: user.id,
         p_reason: rejectionReason,
         p_notes: adminNotes || null,
-      });
+      } as any);
 
       if (error) {
         // Fallback if function doesn't exist - direct API call

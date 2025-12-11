@@ -61,11 +61,11 @@ function ProviderVerificationPageContent() {
       }
 
       // Get provider
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
+      const { data: providerData, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("*")
-        .eq("user_id", user.id)
-        .single();
+        .eq("user_id", user.id as string)
+        .single() as { data: any; error: any };
 
       if (providerError || !providerData) {
         console.error("Provider not found:", providerError);
@@ -76,8 +76,8 @@ function ProviderVerificationPageContent() {
       setProvider(providerData);
 
       // Get existing verification
-      const { data: verificationData } = await supabase
-        .from("provider_verification_documents")
+      const { data: verificationData } = await (supabase as any)
+      .from("provider_verification_documents")
         .select("*")
         .eq("provider_id", providerData.id)
         .order("submitted_at", { ascending: false })
@@ -162,8 +162,8 @@ function ProviderVerificationPageContent() {
 
     try {
       // Insert verification document
-      const { data, error } = await supabase
-        .from("provider_verification_documents")
+      const { data, error } = await (supabase as any)
+      .from("provider_verification_documents")
         .insert({
           provider_id: provider.id,
           document_type: formData.documentType,
@@ -175,9 +175,9 @@ function ProviderVerificationPageContent() {
           issue_date: formData.issueDate || null,
           expiry_date: formData.expiryDate || null,
           status: "pending",
-        })
+        } as any)
         .select()
-        .single();
+        .single() as { data: any; error: any };
 
       if (error) {
         console.error("Database error:", error);
@@ -185,8 +185,8 @@ function ProviderVerificationPageContent() {
       }
 
       // Update provider verification status
-      const { error: updateError } = await supabase
-        .from("providers")
+      const { error: updateError } = await (supabase
+        .from("providers") as any)
         .update({
           verification_status: "pending",
           verification_submitted_at: new Date().toISOString(),
@@ -199,13 +199,13 @@ function ProviderVerificationPageContent() {
       }
 
       // Create notification
-      await supabase.from("booking_notifications").insert({
+      await (supabase as any).from("booking_notifications").insert({
         user_id: provider.user_id,
         type: "verification_submitted",
         title: "Verification Submitted",
         message: "Your verification documents have been submitted for review.",
         read: false,
-      });
+      } as any);
 
       // Show success modal
       setShowSuccessModal(true);

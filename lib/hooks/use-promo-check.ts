@@ -22,11 +22,19 @@ export function usePromoCheck(userId: string | undefined) {
 
   const checkPromoExpiry = async () => {
     try {
-      const { data: provider, error } = await supabase
-        .from("providers")
+      const { data: provider, error } = await (supabase as any)
+      .from("providers")
         .select("id, subscription_tier, promo_expires_at, original_tier")
-        .eq("user_id", userId)
-        .single();
+        .eq("user_id", userId as string)
+        .single() as any as {
+          data: {
+            id: string;
+            subscription_tier: string;
+            promo_expires_at: string | null;
+            original_tier: string | null;
+          } | null;
+          error: any;
+        };
 
       if (error || !provider) return;
 
@@ -59,8 +67,8 @@ export function usePromoCheck(userId: string | undefined) {
       if (isExpired && provider.subscription_tier === "pro") {
         const newTier = provider.original_tier || "free";
 
-        const { error: updateError } = await supabase
-          .from("providers")
+        const { error: updateError } = await (supabase as any)
+      .from("providers")
           .update({
             subscription_tier: newTier,
             promo_expires_at: null,

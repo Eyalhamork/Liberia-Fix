@@ -81,12 +81,12 @@ function ProviderBookingsContent() {
       }
 
       // Get provider ID
-      const { data: provider, error: providerError } = await supabase
-        .from("providers")
+      const { data: provider, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
+        .eq("user_id", user?.id as string)
         .abortSignal(signal)
-        .single();
+        .single() as { data: { id: string } | null; error: any };
 
       if (signal.aborted) return;
 
@@ -99,8 +99,8 @@ function ProviderBookingsContent() {
       }
 
       // Fetch bookings without join first
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from("bookings")
+      const { data: bookingsData, error: bookingsError } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           id,
@@ -115,7 +115,19 @@ function ProviderBookingsContent() {
         )
         .eq("provider_id", provider.id)
         .abortSignal(signal)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as {
+          data: Array<{
+            id: string;
+            customer_id: string;
+            provider_id: string;
+            booking_fee: number;
+            payment_method: string;
+            payment_status: string;
+            transaction_id: string;
+            created_at: string;
+          }> | null;
+          error: any;
+        };
 
       if (signal.aborted) return;
 
@@ -129,12 +141,12 @@ function ProviderBookingsContent() {
 
       // Fetch customer profiles separately for each booking
       const bookingsWithProfiles = await Promise.all(
-        (bookingsData || []).map(async (booking) => {
+        (bookingsData || []).map(async (booking: any) => {
           if (signal.aborted) return null;
 
           // Fetch customer profile
-          const { data: profile } = await supabase
-            .from("profiles")
+          const { data: profile } = await (supabase as any)
+      .from("profiles")
             .select("full_name, phone, email, location, avatar_url")
             .eq("id", booking.customer_id)
             .abortSignal(signal)
@@ -152,15 +164,15 @@ function ProviderBookingsContent() {
       if (signal.aborted) return;
 
       if (isMountedRef.current) {
-        const validBookings = bookingsWithProfiles.filter((b) => b !== null);
+        const validBookings = bookingsWithProfiles.filter((b: any) => b !== null);
         setBookings(validBookings as Booking[]);
 
         // Calculate stats
         const completed =
-          validBookings.filter((b) => b?.payment_status === "completed")
+          validBookings.filter((b: any) => b?.payment_status === "completed")
             .length || 0;
         const pending =
-          validBookings.filter((b) => b?.payment_status === "pending").length ||
+          validBookings.filter((b: any) => b?.payment_status === "pending").length ||
           0;
 
         setStats({

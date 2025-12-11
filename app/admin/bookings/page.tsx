@@ -28,8 +28,8 @@ export default function AdminBookingsPage() {
 
   const fetchBookings = async () => {
     try {
-      const { data, error } = await supabase
-        .from("bookings")
+      const { data, error } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           *,

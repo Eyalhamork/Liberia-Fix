@@ -29,11 +29,11 @@ export default function EmailVerifiedPage() {
 
         if (user) {
           // Get user profile to determine redirect destination
-          const { data: profile } = await supabase
-            .from("profiles")
+          const { data: profile } = await (supabase as any)
+      .from("profiles")
             .select("user_type")
-            .eq("id", user.id)
-            .single();
+            .eq("id", user.id as string)
+            .single() as { data: { user_type: string } | null; error: any };
 
           setUserType(profile?.user_type || "customer");
 

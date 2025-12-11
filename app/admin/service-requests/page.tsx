@@ -29,8 +29,8 @@ export default function AdminServiceRequestsPage() {
 
   const fetchServiceRequests = async () => {
     try {
-      const { data: requests, error } = await supabase
-        .from("service_requests")
+      const { data: requests, error } = await (supabase as any)
+      .from("service_requests")
         .select(
           `
           *,
@@ -45,20 +45,20 @@ export default function AdminServiceRequestsPage() {
           )
         `
         )
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as { data: Array<any> | null; error: any };
 
       if (error) throw error;
 
       // Fetch bids count for each request
-      const requestIds = requests?.map((r) => r.id) || [];
-      const { data: bids } = await supabase
-        .from("service_request_bids")
+      const requestIds = requests?.map((r: any) => r.id) || [];
+      const { data: bids } = await (supabase as any)
+      .from("service_request_bids")
         .select("request_id")
-        .in("request_id", requestIds);
+        .in("request_id", requestIds) as { data: Array<{ request_id: string }> | null };
 
       // Count bids per request
       const counts =
-        bids?.reduce((acc, bid) => {
+        bids?.reduce((acc: Record<string, number>, bid) => {
           acc[bid.request_id] = (acc[bid.request_id] || 0) + 1;
           return acc;
         }, {} as Record<string, number>) || {};

@@ -41,15 +41,17 @@ function BookingPaymentContent() {
   );
 
   useEffect(() => {
-    if (user && params.id) {
+    if (user && params?.id) {
       fetchBooking();
     }
-  }, [user, params.id]);
+  }, [user, params?.id]);
 
   const fetchBooking = async () => {
+    if (!params?.id) return;
+
     try {
-      const { data, error } = await supabase
-        .from("bookings")
+      const { data, error } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           *,
@@ -63,14 +65,27 @@ function BookingPaymentContent() {
           )
         `
         )
-        .eq("id", params.id)
-        .eq("customer_id", user?.id)
-        .single();
+        .eq("id", params?.id as string)
+        .eq("customer_id", user?.id as string)
+        .single() as {
+          data: {
+            id: string;
+            payment_status: string;
+            booking_status: string;
+            booking_fee: number;
+            provider: {
+              id: string;
+              business_name: string;
+              profiles: { full_name: string; phone: string } | null;
+            } | null;
+          } | null;
+          error: any;
+        };
 
       if (error) throw error;
 
       setBooking(data);
-      setProvider(data.provider);
+      setProvider(data?.provider);
 
       // Pre-fill phone number if available
       if (user?.user_metadata?.phone) {
@@ -105,20 +120,20 @@ function BookingPaymentContent() {
       }
 
       // Update booking status
-      const { error: updateError } = await supabase
-        .from("bookings")
+      const { error: updateError } = await (supabase as any)
+      .from("bookings")
         .update({
           payment_status: "completed",
           booking_status: "confirmed",
           payment_method:
             paymentMethod === "orange" ? "Orange Money" : "MTN Money",
-        })
-        .eq("id", params.id);
+        } as any)
+        .eq("id", params?.id as string);
 
       if (updateError) throw updateError;
 
       // Success! Redirect
-      router.push(`/customer/bookings/${params.id}/success`);
+      router.push(`/customer/bookings/${params?.id}/success`);
     } catch (err: any) {
       console.error("Payment error:", err);
       setError(err.message || "Payment failed. Please try again.");
@@ -161,7 +176,7 @@ function BookingPaymentContent() {
 
   // If already paid
   if (booking?.payment_status === "completed") {
-    router.push(`/customer/bookings/${params.id}`);
+    router.push(`/customer/bookings/${params?.id}`);
     return null;
   }
 

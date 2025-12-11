@@ -59,16 +59,16 @@ export default function ServiceRequestDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (params.id) {
+    if (params?.id) {
       fetchRequest();
       incrementViewCount();
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   const fetchRequest = async () => {
     try {
-      const { data, error } = await supabase
-        .from("service_requests")
+      const { data, error } = await (supabase as any)
+      .from("service_requests")
         .select(
           `
           *,
@@ -78,10 +78,10 @@ export default function ServiceRequestDetailPage() {
           )
         `
         )
-        .eq("id", params.id)
+        .eq("id", params?.id as string)
         .eq("payment_status", "completed")
         .eq("status", "active")
-        .single();
+        .single() as { data: ServiceRequest | null; error: any };
 
       if (error) throw error;
 
@@ -103,9 +103,9 @@ export default function ServiceRequestDetailPage() {
     try {
       // Only increment if user is a provider
       if (user && profile?.user_type === "provider") {
-        await supabase.rpc("increment_request_views", {
-          request_id: params.id,
-        });
+        await (supabase as any).rpc("increment_request_views" as any, {
+          request_id: params?.id,
+        } as any);
       }
     } catch (err) {
       console.error("Error incrementing views:", err);
@@ -155,7 +155,7 @@ export default function ServiceRequestDetailPage() {
 
   const handleBidClick = () => {
     if (!user) {
-      router.push(`/login?redirectTo=/service-requests/${params.id}`);
+      router.push(`/login?redirectTo=/service-requests/${params?.id}`);
       return;
     }
 
@@ -165,7 +165,7 @@ export default function ServiceRequestDetailPage() {
     }
 
     // Redirect to bid page - FIXED PATH
-    router.push(`/provider/service-requests/${params.id}/bid`);
+    router.push(`/provider/service-requests/${params?.id}/bid`);
   };
 
   if (loading) {

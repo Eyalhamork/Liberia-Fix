@@ -71,7 +71,7 @@ function BookingSuccessContent() {
         </div>
 
         <button
-          onClick={() => router.push(`/customer/bookings/${params.id}`)}
+          onClick={() => router.push(`/customer/bookings/${params?.id}`)}
           className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg inline-flex items-center gap-2"
         >
           View Booking Details

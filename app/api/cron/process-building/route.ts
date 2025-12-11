@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    ) as any;
 
     const mtnService = createMTNMoMoService();
-    const paymentService = createPaymentService(supabase, mtnService);
+    const paymentService = createPaymentService() as any;
     const subscriptionService = new SubscriptionService(
       supabase,
       paymentService
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     console.log("Starting subscription billing process...");
 
     // Process all due subscriptions
-    const results = await subscriptionService.processAllDueSubscriptions();
+    const results = await subscriptionService.processAllDueSubscriptions() as any;
 
     console.log("Billing process completed:", results);
 

@@ -82,7 +82,7 @@ export function useProviders(options: UseProvidersOptions = {}) {
         .order("subscription_tier", { ascending: false })
         .order("total_rating", { ascending: false });
 
-      const { data, error: fetchError } = await query;
+      const { data, error: fetchError } = await query as { data: Provider[] | null; error: any };
 
       if (fetchError) {
         setError(fetchError.message);
@@ -95,11 +95,11 @@ export function useProviders(options: UseProvidersOptions = {}) {
       if (options.search) {
         const searchTerm = options.search.toLowerCase();
         filteredProviders = filteredProviders.filter(
-          (provider) =>
+          (provider: any) =>
             provider.profiles?.full_name?.toLowerCase().includes(searchTerm) ||
             provider.business_name?.toLowerCase().includes(searchTerm) ||
             provider.description?.toLowerCase().includes(searchTerm) ||
-            provider.provider_services?.some((service) =>
+            provider.provider_services?.some((service: any) =>
               service.service_categories.name.toLowerCase().includes(searchTerm)
             )
         );
@@ -107,8 +107,8 @@ export function useProviders(options: UseProvidersOptions = {}) {
 
       // Apply category filter
       if (options.category && options.category !== "all") {
-        filteredProviders = filteredProviders.filter((provider) =>
-          provider.provider_services?.some((service) =>
+        filteredProviders = filteredProviders.filter((provider: any) =>
+          provider.provider_services?.some((service: any) =>
             service.service_categories.name
               .toLowerCase()
               .includes(options.category!.toLowerCase())
@@ -158,8 +158,8 @@ export function useProvider(id: string) {
         setLoading(true);
         setError(null);
 
-        const { data, error: fetchError } = await supabase
-          .from("providers")
+        const { data, error: fetchError } = await (supabase as any)
+      .from("providers")
           .select(
             `
             *,

@@ -41,8 +41,8 @@ export function NotificationBanner() {
       // Check browser permission
       if (Notification.permission === "granted") {
         // Permission granted, but check if subscribed
-        const { data: subscription } = await supabase
-          .from("notification_subscriptions")
+        const { data: subscription } = await (supabase as any)
+      .from("notification_subscriptions")
           .select("id")
           .eq("user_id", user.id)
           .eq("active", true)

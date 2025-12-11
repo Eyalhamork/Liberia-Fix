@@ -20,8 +20,8 @@ export default async function RootPage() {
   }
 
   // Get user profile with user_type
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: profile } = await (supabase as any)
+      .from("profiles")
     .select("user_type, onboarding_completed")
     .eq("id", user.id)
     .single();

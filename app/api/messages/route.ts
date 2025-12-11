@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch messages between current user and other user
-    const { data: messages, error: fetchError } = await supabase
+    const { data: messages, error: fetchError } = await (supabase as any)
       .from("messages")
       .select("*")
       .or(
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     // Filter out expired messages (older than 30 days)
     const now = new Date();
-    const validMessages = (messages || []).filter((msg) => {
+    const validMessages = (messages || []).filter((msg: any) => {
       const expiresAt = new Date(msg.expires_at);
       return expiresAt > now;
     });
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     expiresAt.setDate(expiresAt.getDate() + 30);
 
     // Insert message
-    const { data: newMessage, error: insertError } = await supabase
+    const { data: newMessage, error: insertError } = await (supabase as any)
       .from("messages")
       .insert({
         sender_id: user.id,
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         booking_id: booking_id || null,
         service_request_id: service_request_id || null,
         expires_at: expiresAt.toISOString(),
-      })
+      } as any)
       .select()
       .single();
 
@@ -149,15 +149,15 @@ export async function POST(request: NextRequest) {
     // ==========================================
     try {
       // Get sender's profile to check if they're a provider
-      const { data: senderProfile } = await supabase
-        .from("profiles")
+      const { data: senderProfile } = await (supabase as any)
+      .from("profiles")
         .select("full_name, user_type")
         .eq("id", user.id)
         .single();
 
       // Get receiver's profile
-      const { data: receiverProfile } = await supabase
-        .from("profiles")
+      const { data: receiverProfile } = await (supabase as any)
+      .from("profiles")
         .select("user_type")
         .eq("id", receiver_id)
         .single();
@@ -176,8 +176,8 @@ export async function POST(request: NextRequest) {
         receiverProfile?.user_type === "customer"
       ) {
         // Get provider details for notification
-        const { data: provider } = await supabase
-          .from("providers")
+        const { data: provider } = await (supabase as any)
+      .from("providers")
           .select("business_name")
           .eq("user_id", user.id)
           .single();
@@ -248,9 +248,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Mark all messages from otherUserId as read
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from("messages")
-      .update({ read: true })
+      .update({ read: true } as any)
       .eq("sender_id", otherUserId)
       .eq("receiver_id", user.id)
       .eq("read", false);

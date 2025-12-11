@@ -8,8 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 export async function completeOnboarding(userId: string) {
   const supabase = createClient();
 
-  const { error } = await supabase
-    .from("profiles")
+  const { error } = await (supabase as any)
+      .from("profiles")
     .update({
       // @ts-ignore - onboarding_completed might not be in types yet
       onboarding_completed: true,
@@ -30,8 +30,8 @@ export async function completeOnboarding(userId: string) {
 export async function hasCompletedOnboarding(userId: string): Promise<boolean> {
   const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("profiles")
+  const { data, error } = await (supabase as any)
+      .from("profiles")
     .select("onboarding_completed")
     .eq("id", userId)
     .single();

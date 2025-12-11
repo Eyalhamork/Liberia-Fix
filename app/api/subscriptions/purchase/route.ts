@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   // Get provider details
-  const { data: provider, error: providerError } = await supabase
+  const { data: provider, error: providerError } = await (supabase as any)
     .from("providers")
     .select("*, profiles:user_id (full_name, email)")
     .eq("user_id", user.id)
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   }
 
   // Check if already has active subscription
-  const { data: existingSub } = await supabase
+  const { data: existingSub } = await (supabase as any)
     .from("provider_subscriptions")
     .select("*")
     .eq("provider_id", provider.id)
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   expiresAt.setMonth(expiresAt.getMonth() + 1); // 1 month subscription
 
   // Create subscription record
-  const { data: subscription, error: subError } = await supabase
+  const { data: subscription, error: subError } = await (supabase as any)
     .from("provider_subscriptions")
     .insert({
       provider_id: provider.id,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
   }
 
   // Create transaction record
-  const { data: transaction, error: txError } = await supabase
+  const { data: transaction, error: txError } = await (supabase as any)
     .from("transactions")
     .insert({
       user_id: user.id,
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
 
   if (!paymentSuccess) {
     // Payment failed
-    await supabase
+    await (supabase as any)
       .from("transactions")
       .update({
         status: "failed",
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       })
       .eq("id", transaction.id);
 
-    await supabase
+    await (supabase as any)
       .from("provider_subscriptions")
       .update({
         status: "failed",
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
   }
 
   // Payment successful
-  const { data: updatedTransaction } = await supabase
+  const { data: updatedTransaction } = await (supabase as any)
     .from("transactions")
     .update({
       status: "completed",
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
     .select()
     .single();
 
-  const { data: updatedSubscription } = await supabase
+  const { data: updatedSubscription } = await (supabase as any)
     .from("provider_subscriptions")
     .update({
       status: "active",
@@ -174,7 +174,7 @@ export async function POST(request: Request) {
     .single();
 
   // Upgrade provider tier
-  await supabase
+  await (supabase as any)
     .from("providers")
     .update({
       subscription_tier: "pro",

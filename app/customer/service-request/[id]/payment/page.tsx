@@ -36,16 +36,16 @@ function ServiceRequestPaymentContent() {
     if (user) {
       fetchServiceRequest();
     }
-  }, [user, params.id]);
+  }, [user, params?.id]);
 
   const fetchServiceRequest = async () => {
     try {
-      const { data, error } = await supabase
-        .from("service_requests")
+      const { data, error } = await (supabase as any)
+      .from("service_requests")
         .select("*")
-        .eq("id", params.id)
-        .eq("customer_id", user?.id)
-        .single();
+        .eq("id", params?.id as string)
+        .eq("customer_id", user?.id as string)
+        .single() as { data: any; error: any };
 
       if (error) throw error;
 
@@ -81,7 +81,7 @@ function ServiceRequestPaymentContent() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          service_request_id: params.id,
+          service_request_id: params?.id as string,
           phone_number: phoneNumber,
           payment_method: paymentMethod,
         }),

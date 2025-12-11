@@ -28,8 +28,8 @@ export default function AdminTransactionsPage() {
 
   const fetchTransactions = async () => {
     try {
-      const { data, error } = await supabase
-        .from("transactions")
+      const { data, error } = await (supabase as any)
+      .from("transactions")
         .select(
           `
           *,
@@ -206,7 +206,7 @@ export default function AdminTransactionsPage() {
           value={failedTransactions}
           icon={XCircle}
           trend={null}
-          variant="danger"
+          variant="error"
         />
       </div>
 

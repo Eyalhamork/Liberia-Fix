@@ -46,8 +46,8 @@ export function Header() {
     if (!confirmed) return;
 
     try {
-      const { error } = await supabase
-        .from("profiles")
+      const { error } = await (supabase as any)
+      .from("profiles")
         .update({ user_type: "provider" })
         .eq("id", user.id);
 

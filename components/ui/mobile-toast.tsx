@@ -54,7 +54,7 @@ class ToastManager {
     }
 
     // Auto dismiss
-    if (newToast.duration > 0) {
+    if (newToast.duration && newToast.duration > 0) {
       setTimeout(() => {
         this.dismiss(id);
       }, newToast.duration);

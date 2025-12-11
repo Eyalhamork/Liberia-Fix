@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const providerId = searchParams.get("provider_id");
   const customerId = searchParams.get("customer_id");
 
-  let query = supabase.from("reviews").select(
+  let query = (supabase as any).from("reviews").select(
     `
       *,
       customer:profiles!reviews_customer_id_fkey (full_name, avatar_url),
@@ -80,8 +80,8 @@ export async function POST(request: Request) {
   }
 
   // Check if user already reviewed this provider
-  const { data: existingReview } = await supabase
-    .from("reviews")
+  const { data: existingReview } = await (supabase as any)
+      .from("reviews")
     .select("id")
     .eq("customer_id", user.id)
     .eq("provider_id", provider_id)
@@ -95,15 +95,15 @@ export async function POST(request: Request) {
   }
 
   // Get customer details for notification
-  const { data: customer } = await supabase
-    .from("profiles")
+  const { data: customer } = await (supabase as any)
+      .from("profiles")
     .select("full_name")
     .eq("id", user.id)
     .single();
 
   // Get provider details
-  const { data: provider } = await supabase
-    .from("providers")
+  const { data: provider } = await (supabase as any)
+      .from("providers")
     .select("user_id, business_name, total_rating, review_count")
     .eq("id", provider_id)
     .single();
@@ -113,8 +113,8 @@ export async function POST(request: Request) {
   }
 
   // Create review
-  const { data: review, error: reviewError } = await supabase
-    .from("reviews")
+  const { data: review, error: reviewError } = await (supabase as any)
+      .from("reviews")
     .insert({
       customer_id: user.id,
       provider_id,
@@ -137,8 +137,8 @@ export async function POST(request: Request) {
   const newReviewCount = provider.review_count + 1;
   const newTotalRating = provider.total_rating + rating;
 
-  await supabase
-    .from("providers")
+  await (supabase as any)
+      .from("providers")
     .update({
       review_count: newReviewCount,
       total_rating: newTotalRating,

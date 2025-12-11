@@ -25,8 +25,8 @@ function LeaveReviewContent() {
   const { user } = useAuth();
   const supabase = createClient();
 
-  const providerId = params.providerId as string;
-  const bookingId = searchParams.get("booking_id");
+  const providerId = params?.providerId as string;
+  const bookingId = searchParams?.get("booking_id");
 
   const [provider, setProvider] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -54,8 +54,8 @@ function LeaveReviewContent() {
 
   const fetchProvider = async () => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from("providers")
+      const { data, error: fetchError } = await (supabase as any)
+      .from("providers")
         .select(
           `
           id,
@@ -81,10 +81,10 @@ function LeaveReviewContent() {
 
   const checkExistingReview = async () => {
     try {
-      const { data: existing } = await supabase
-        .from("reviews")
+      const { data: existing } = await (supabase as any)
+      .from("reviews")
         .select("id")
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .eq("provider_id", providerId)
         .single();
 
@@ -118,7 +118,7 @@ function LeaveReviewContent() {
 
     try {
       // Insert review
-      const { error: insertError } = await supabase.from("reviews").insert({
+      const { error: insertError } = await (supabase as any).from("reviews").insert({
         customer_id: user.id,
         provider_id: providerId,
         booking_id: bookingId || null,
@@ -128,27 +128,29 @@ function LeaveReviewContent() {
         quality_rating: categories.quality || null,
         professionalism_rating: categories.professionalism || null,
         value_rating: categories.value || null,
-      });
+      } as any);
 
       if (insertError) throw insertError;
 
       // Update provider's total rating and count
-      const { data: currentProvider } = await supabase
-        .from("providers")
+      const { data: currentProvider } = await (supabase as any)
+      .from("providers")
         .select("total_rating, review_count")
         .eq("id", providerId)
-        .single();
+        .single() as {
+          data: { total_rating: number; review_count: number } | null;
+        };
 
       if (currentProvider) {
         const newTotalRating = currentProvider.total_rating + rating;
         const newReviewCount = currentProvider.review_count + 1;
 
-        await supabase
-          .from("providers")
+        await (supabase as any)
+      .from("providers")
           .update({
             total_rating: newTotalRating,
             review_count: newReviewCount,
-          })
+          } as any)
           .eq("id", providerId);
       }
 

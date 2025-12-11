@@ -5,13 +5,13 @@ export async function trackSearch(searchTerm: string, resultCount: number) {
     const supabase = createClient();
 
     // Track search in a non-blocking way
-    supabase
+    void supabase
       .from("search_keywords")
       .upsert(
         {
           keyword: searchTerm.toLowerCase(),
           search_count: 1,
-        },
+        } as any,
         {
           onConflict: "keyword",
           ignoreDuplicates: false,
@@ -19,11 +19,8 @@ export async function trackSearch(searchTerm: string, resultCount: number) {
       )
       .then(() => {
         // Silent success
-      })
-      .catch((error) => {
-        console.error("Search tracking error:", error);
       });
-  } catch (error) {
+  } catch (error: any) {
     // Don't block search if analytics fails
     console.error("Search analytics error:", error);
   }

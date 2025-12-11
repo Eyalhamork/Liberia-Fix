@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const now = new Date().toISOString();
 
     // Find all providers with expired promos
-    const { data: expiredProviders, error: fetchError } = await supabase
+    const { data: expiredProviders, error: fetchError } = await (supabase as any)
       .from("providers")
       .select("id, user_id, subscription_tier, promo_expires_at, original_tier")
       .not("promo_expires_at", "is", null)
@@ -47,8 +47,8 @@ export async function GET(request: Request) {
         // Downgrade to original tier (or free if not set)
         const newTier = provider.original_tier || "free";
 
-        const { error: updateError } = await supabase
-          .from("providers")
+        const { error: updateError } = await (supabase as any)
+      .from("providers")
           .update({
             subscription_tier: newTier,
             promo_expires_at: null,

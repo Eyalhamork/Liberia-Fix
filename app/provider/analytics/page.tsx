@@ -97,11 +97,11 @@ function ProviderAnalyticsContent() {
   }, [user, timeRange]);
 
   const fetchTierStatus = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("providers")
       .select("subscription_tier, promo_expires_at")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as any as { data: { subscription_tier: string; promo_expires_at: string | null } | null; error: any };
 
     if (data) {
       const promoActive =
@@ -118,11 +118,11 @@ function ProviderAnalyticsContent() {
     try {
       setLoading(true);
 
-      const { data: provider } = await supabase
-        .from("providers")
+      const { data: provider } = await (supabase as any)
+      .from("providers")
         .select("id, total_rating, review_count")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as any as { data: { id: string; total_rating: number; review_count: number } | null; error: any };
 
       if (!provider) {
         setLoading(false);
@@ -139,26 +139,26 @@ function ProviderAnalyticsContent() {
       else dateFilter = new Date("2000-01-01");
 
       // Fetch connection stats
-      const { count: totalConnections } = await supabase
-        .from("bookings")
+      const { count: totalConnections } = await (supabase as any)
+      .from("bookings")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .gte("created_at", dateFilter.toISOString());
 
-      const { count: activeConnections } = await supabase
-        .from("bookings")
+      const { count: activeConnections } = await (supabase as any)
+      .from("bookings")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("payment_status", "completed")
         .gte("created_at", dateFilter.toISOString());
 
-      const { data: revenueData } = await supabase
-        .from("bookings")
+      const { data: revenueData } = await (supabase as any)
+      .from("bookings")
         .select("amount, created_at")
         .eq("provider_id", provider.id)
         .eq("payment_status", "completed")
         .gte("created_at", dateFilter.toISOString())
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true }) as { data: Array<{ amount: number; created_at: string }> | null; error: any };
 
       const connectionRevenue =
         revenueData?.reduce((sum, b) => sum + b.amount, 0) || 0;
@@ -189,28 +189,28 @@ function ProviderAnalyticsContent() {
       );
 
       // Fetch bid stats
-      const { count: totalBids } = await supabase
-        .from("service_request_bids")
+      const { count: totalBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .gte("created_at", dateFilter.toISOString());
 
-      const { count: pendingBids } = await supabase
-        .from("service_request_bids")
+      const { count: pendingBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "pending")
         .gte("created_at", dateFilter.toISOString());
 
-      const { count: acceptedBids } = await supabase
-        .from("service_request_bids")
+      const { count: acceptedBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "accepted")
         .gte("created_at", dateFilter.toISOString());
 
-      const { count: rejectedBids } = await supabase
-        .from("service_request_bids")
+      const { count: rejectedBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "rejected")
@@ -221,30 +221,30 @@ function ProviderAnalyticsContent() {
         : 0;
 
       // Fetch service stats
-      const { count: activeCategories } = await supabase
-        .from("provider_categories")
+      const { count: activeCategories } = await (supabase as any)
+      .from("provider_categories")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
-      const { count: activeSpecialties } = await supabase
-        .from("provider_specialties")
+      const { count: activeSpecialties } = await (supabase as any)
+      .from("provider_specialties")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
-      const { count: activePhotos } = await supabase
-        .from("provider_photos")
+      const { count: activePhotos } = await (supabase as any)
+      .from("provider_photos")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
       // Category distribution for pie chart
-      const { data: categoryData } = await supabase
-        .from("provider_categories")
+      const { data: categoryData } = await (supabase as any)
+      .from("provider_categories")
         .select("service_category_id")
         .eq("provider_id", provider.id)
-        .eq("status", "active");
+        .eq("status", "active") as { data: Array<{ service_category_id: string }> | null; error: any };
 
       const categoryCount = new Map<string, number>();
       categoryData?.forEach((cat) => {
@@ -259,8 +259,8 @@ function ProviderAnalyticsContent() {
         })
       );
 
-      const { count: activeServiceRequests } = await supabase
-        .from("service_requests")
+      const { count: activeServiceRequests } = await (supabase as any)
+      .from("service_requests")
         .select("*", { count: "exact", head: true })
         .eq("status", "active")
         .gte("expires_at", new Date().toISOString());
@@ -417,7 +417,7 @@ function ProviderAnalyticsContent() {
             <p className="text-xs text-gray-500 mt-2">
               $
               {(
-                analytics?.connection_revenue /
+                (analytics?.connection_revenue || 0) /
                 Math.max(1, analytics?.active_connections || 1)
               ).toFixed(2)}{" "}
               per connection
@@ -661,8 +661,8 @@ function ProviderAnalyticsContent() {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    label={({ name, percent }: any) =>
+                      `${name}: ${((percent as any) * 100).toFixed(0)}%`
                     }
                     outerRadius={100}
                     fill="#8884d8"

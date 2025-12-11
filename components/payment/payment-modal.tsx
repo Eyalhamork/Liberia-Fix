@@ -9,6 +9,17 @@ import {
 } from "lucide-react";
 
 // Payment Modal Component
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  amount: number;
+  currency?: string;
+  transactionType: string;
+  providerId?: string;
+  bookingId?: string;
+  onSuccess?: (transaction: any) => void;
+}
+
 export default function PaymentModal({
   isOpen,
   onClose,
@@ -18,7 +29,7 @@ export default function PaymentModal({
   providerId,
   bookingId,
   onSuccess,
-}) {
+}: PaymentModalProps) {
   const [step, setStep] = useState("select"); // select, confirm, processing, success, error
   const [selectedProvider, setSelectedProvider] = useState("mtn_momo");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -26,7 +37,7 @@ export default function PaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [referenceId, setReferenceId] = useState("");
   const [error, setError] = useState("");
-  const [statusCheckInterval, setStatusCheckInterval] = useState(null);
+  const [statusCheckInterval, setStatusCheckInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Payment providers
   const providers = [
@@ -47,7 +58,7 @@ export default function PaymentModal({
   ];
 
   // Format phone number as user types
-  const formatPhoneNumber = (value) => {
+  const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
 
     if (cleaned.startsWith("231")) {
@@ -137,7 +148,7 @@ export default function PaymentModal({
   };
 
   // Poll payment status
-  const startStatusPolling = (refId) => {
+  const startStatusPolling = (refId: string) => {
     let attempts = 0;
     const maxAttempts = 60; // Poll for 5 minutes (every 5 seconds)
 
@@ -188,7 +199,7 @@ export default function PaymentModal({
   }, [statusCheckInterval]);
 
   // Handle phone input
-  const handlePhoneChange = (e) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhoneNumber(e.target.value);
     setPhoneNumber(formatted);
   };

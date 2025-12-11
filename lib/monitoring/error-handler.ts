@@ -33,7 +33,7 @@ async function logError(error: SystemError): Promise<string | null> {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: errorLog, error: insertError } = await supabase
+    const { data: errorLog, error: insertError } = await (supabase as any)
       .from("system_errors")
       .insert({
         error_type: error.type,

@@ -13,7 +13,7 @@ import { SimpleChat } from "@/components/chat/simple-chat";
 import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 
 function ChatPageContent() {
-  const params = useParams();
+  const params = useParams() as any;
   const router = useRouter();
   const { user } = useAuth();
   const supabase = createClient();
@@ -33,8 +33,8 @@ function ChatPageContent() {
 
   const fetchOtherUser = async () => {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
+      const { data, error } = await (supabase as any)
+      .from("profiles")
         .select("id, full_name, avatar_url")
         .eq("id", receiverId)
         .single();

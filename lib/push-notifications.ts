@@ -71,7 +71,7 @@ export async function subscribeToPushNotifications(userId: string) {
           .replace(/\-/g, "+")
           .replace(/_/g, "/");
         const rawData = window.atob(base64);
-        return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+        return Uint8Array.from(Array.from(rawData).map((char: any) => char.charCodeAt(0)));
       };
 
       const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
@@ -92,7 +92,7 @@ export async function subscribeToPushNotifications(userId: string) {
 
     console.log("💾 Saving subscription with device_id:", deviceId);
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("notification_subscriptions")
       .upsert(
         {
@@ -105,13 +105,13 @@ export async function subscribeToPushNotifications(userId: string) {
           user_agent: userAgent,
           active: true,
           last_used: new Date().toISOString(),
-        },
+        } as any,
         {
           onConflict: "user_id,device_id", // Specify the unique constraint
         }
       )
       .select()
-      .single();
+      .single() as { data: any; error: any };
 
     if (error) {
       console.error("❌ Error saving subscription:", error);
@@ -127,7 +127,7 @@ export async function subscribeToPushNotifications(userId: string) {
     console.log("✅ Push subscription saved successfully!");
     console.log("Subscription ID:", data?.id);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error subscribing to push:", error);
     return false;
   }

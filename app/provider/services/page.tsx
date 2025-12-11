@@ -84,32 +84,32 @@ function ProviderServicesContent() {
   }, [user]);
 
   const fetchProviderData = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("providers")
       .select("subscription_tier")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { subscription_tier: string } | null };
 
     if (data) {
-      setCurrentTier(data.subscription_tier || "free");
+      setCurrentTier((data.subscription_tier as "free" | "pro" | "elite") || "free");
     }
   };
 
   const fetchServices = async () => {
     setLoading(true);
 
-    const { data: providerData } = await supabase
+    const { data: providerData } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null };
 
     if (!providerData) {
       setLoading(false);
       return;
     }
 
-    const { data: servicesData } = await supabase
+    const { data: servicesData } = await (supabase as any)
       .from("provider_services")
       .select(
         `
@@ -125,7 +125,7 @@ function ProviderServicesContent() {
         )
       `
       )
-      .eq("provider_id", providerData.id);
+      .eq("provider_id", providerData.id) as { data: any[] | null };
 
     if (servicesData) {
       const formattedServices = servicesData.map((s: any) => ({
@@ -145,7 +145,7 @@ function ProviderServicesContent() {
   };
 
   const fetchCategories = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("service_categories")
       .select("id, name, icon")
       .eq("active", true)
@@ -171,11 +171,11 @@ function ProviderServicesContent() {
 
     setSaving(true);
 
-    const { data: providerData } = await supabase
+    const { data: providerData } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null };
 
     if (!providerData) {
       alert("Provider not found");
@@ -183,14 +183,14 @@ function ProviderServicesContent() {
       return;
     }
 
-    const { error } = await supabase.from("provider_services").insert({
+    const { error } = await (supabase as any).from("provider_services").insert({
       provider_id: providerData.id,
       service_category_id: formData.category_id,
       price: parseFloat(formData.price),
       duration: parseInt(formData.duration),
       description: formData.description,
       active: formData.active,
-    });
+    } as any);
 
     if (error) {
       alert("Error adding service");
@@ -215,8 +215,8 @@ function ProviderServicesContent() {
 
     setSaving(true);
 
-    const { error } = await supabase
-      .from("provider_services")
+    const { error } = await (supabase
+      .from("provider_services") as any)
       .update({
         price: parseFloat(formData.price),
         duration: parseInt(formData.duration),
@@ -246,7 +246,7 @@ function ProviderServicesContent() {
   const handleDeleteService = async (serviceId: string) => {
     if (!confirm("Are you sure you want to delete this service?")) return;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("provider_services")
       .delete()
       .eq("id", serviceId);

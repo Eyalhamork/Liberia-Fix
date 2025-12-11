@@ -11,10 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = await createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = await createClient();
 
   // Calculate date range: bookings completed exactly 3 days ago
   const threeDaysAgo = new Date();
@@ -25,7 +22,7 @@ export async function GET(request: Request) {
   threeDaysAgoEnd.setHours(23, 59, 59, 999);
 
   // Find completed bookings from 3 days ago
-  const { data: completedBookings, error } = await supabase
+  const { data: completedBookings, error } = await (supabase as any)
     .from("bookings")
     .select(
       `
@@ -56,7 +53,7 @@ export async function GET(request: Request) {
   for (const booking of completedBookings || []) {
     try {
       // Check if customer already reviewed this provider
-      const { data: existingReview } = await supabase
+      const { data: existingReview } = await (supabase as any)
         .from("reviews")
         .select("id")
         .eq("customer_id", booking.customer_id)
@@ -66,7 +63,7 @@ export async function GET(request: Request) {
       // Only send reminder if no review exists
       if (!existingReview) {
         // Check if we already sent a reminder for this booking
-        const { data: existingNotif } = await supabase
+        const { data: existingNotif } = await (supabase as any)
           .from("notifications")
           .select("id")
           .eq("user_id", booking.customer_id)

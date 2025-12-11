@@ -52,8 +52,8 @@ export function SimpleChat({
 
   const fetchMessages = async () => {
     try {
-      const { data, error } = await supabase
-        .from("messages")
+      const { data, error } = await (supabase as any)
+      .from("messages")
         .select("*")
         .or(
           `and(sender_id.eq.${user?.id},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${user?.id})`
@@ -64,10 +64,10 @@ export function SimpleChat({
       setMessages(data || []);
 
       // Mark messages as read
-      await supabase
-        .from("messages")
-        .update({ read: true })
-        .eq("receiver_id", user?.id)
+      await (supabase
+        .from("messages") as any)
+        .update({ read: true } as any)
+        .eq("receiver_id", user?.id as string)
         .eq("sender_id", receiverId)
         .eq("read", false);
     } catch (err) {
@@ -88,7 +88,7 @@ export function SimpleChat({
           table: "messages",
           filter: `receiver_id=eq.${user?.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const newMsg = payload.new as Message;
           if (
             newMsg.sender_id === receiverId ||
@@ -114,21 +114,23 @@ export function SimpleChat({
 
     setSending(true);
     try {
-      const { data, error } = await supabase
-        .from("messages")
+      const { data, error } = await (supabase as any)
+      .from("messages")
         .insert({
           sender_id: user.id,
           receiver_id: receiverId,
           booking_id: bookingId || null,
           service_request_id: serviceRequestId || null,
           message: newMessage.trim(),
-        })
+        } as any)
         .select()
-        .single();
+        .single() as any as { data: Message | null; error: any };
 
       if (error) throw error;
 
-      setMessages((prev) => [...prev, data]);
+      if (data) {
+        setMessages((prev) => [...prev, data]);
+      }
       setNewMessage("");
     } catch (err) {
       console.error("Error sending message:", err);

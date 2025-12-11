@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/providers/auth-provider";
 export function useNotificationCount() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user } = useAuth() as any;
   const supabase = createClient();
 
   useEffect(() => {
@@ -25,11 +25,11 @@ export function useNotificationCount() {
     // Initial fetch
     async function fetchCount() {
       try {
-        const { data, error } = await supabase
-          .from("notifications")
+        const { data, error } = await (supabase as any)
+      .from("notifications")
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
-          .eq("read", false);
+          .eq("read", false) as any as { data: any; error: any };
 
         if (error) {
           console.error("Error fetching notification count:", error);

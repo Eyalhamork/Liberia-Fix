@@ -97,11 +97,20 @@ function ProviderDashboardContent() {
 
   const fetchTierStatus = async () => {
     try {
-      const { data: provider } = await supabase
-        .from("providers")
+      const { data: provider } = await (supabase as any)
+      .from("providers")
         .select("id, user_id, subscription_tier, promo_expires_at, verified")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as {
+          data: {
+            id: string;
+            user_id: string;
+            subscription_tier: "free" | "pro";
+            promo_expires_at: string | null;
+            verified: boolean;
+          } | null;
+          error: any;
+        };
 
       if (provider) {
         const promoActive =
@@ -109,20 +118,20 @@ function ProviderDashboardContent() {
           new Date(provider.promo_expires_at) > new Date();
 
         // Get counts
-        const { count: catCount } = await supabase
-          .from("provider_categories")
+        const { count: catCount } = await (supabase as any)
+      .from("provider_categories")
           .select("*", { count: "exact", head: true })
           .eq("provider_id", provider.id)
           .eq("status", "active");
 
-        const { count: specCount } = await supabase
-          .from("provider_specialties")
+        const { count: specCount } = await (supabase as any)
+      .from("provider_specialties")
           .select("*", { count: "exact", head: true })
           .eq("provider_id", provider.id)
           .eq("status", "active");
 
-        const { count: photoCount } = await supabase
-          .from("provider_photos")
+        const { count: photoCount } = await (supabase as any)
+      .from("provider_photos")
           .select("*", { count: "exact", head: true })
           .eq("provider_id", provider.id)
           .eq("status", "active");
@@ -145,11 +154,11 @@ function ProviderDashboardContent() {
 
   const fetchStats = async () => {
     try {
-      const { data: provider } = await supabase
-        .from("providers")
+      const { data: provider } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as { data: { id: string } | null; error: any };
 
       if (!provider) return;
 
@@ -158,41 +167,41 @@ function ProviderDashboardContent() {
       weekAgo.setDate(weekAgo.getDate() - 7);
 
       // Total bids
-      const { count: totalBids } = await supabase
-        .from("service_request_bids")
+      const { count: totalBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id);
 
       // Pending bids
-      const { count: pendingBids } = await supabase
-        .from("service_request_bids")
+      const { count: pendingBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "pending");
 
       // Accepted bids
-      const { count: acceptedBids } = await supabase
-        .from("service_request_bids")
+      const { count: acceptedBids } = await (supabase as any)
+      .from("service_request_bids")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "accepted");
 
       // Active service requests (that provider can bid on)
-      const { count: activeRequests } = await supabase
-        .from("service_requests")
+      const { count: activeRequests } = await (supabase as any)
+      .from("service_requests")
         .select("*", { count: "exact", head: true })
         .eq("status", "active")
         .gte("expires_at", new Date().toISOString());
 
       // Categories and specialties
-      const { count: catCount } = await supabase
-        .from("provider_categories")
+      const { count: catCount } = await (supabase as any)
+      .from("provider_categories")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
-      const { count: specCount } = await supabase
-        .from("provider_specialties")
+      const { count: specCount } = await (supabase as any)
+      .from("provider_specialties")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
@@ -218,17 +227,17 @@ function ProviderDashboardContent() {
 
   const fetchRecentActivity = async () => {
     try {
-      const { data: provider } = await supabase
-        .from("providers")
+      const { data: provider } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as { data: { id: string } | null; error: any };
 
       if (!provider) return;
 
       // Get recent bids
-      const { data: recentBids } = await supabase
-        .from("service_request_bids")
+      const { data: recentBids } = await (supabase as any)
+      .from("service_request_bids")
         .select(
           `
           id,
@@ -240,7 +249,16 @@ function ProviderDashboardContent() {
         )
         .eq("provider_id", provider.id)
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(5) as {
+          data: Array<{
+            id: string;
+            amount: number;
+            status: string;
+            created_at: string;
+            service_request: { title: string } | null;
+          }> | null;
+          error: any;
+        };
 
       const activities: RecentActivity[] = [];
 

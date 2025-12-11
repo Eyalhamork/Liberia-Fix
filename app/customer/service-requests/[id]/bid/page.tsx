@@ -63,21 +63,31 @@ export default function ProviderBidSubmissionPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (user) {
+    if (user && params?.id) {
       fetchData();
     }
-  }, [user, params.id]);
+  }, [user, params?.id]);
 
   const fetchData = async () => {
+    if (!params?.id) return;
+
     try {
       // Get provider info
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
+      const { data: providerData, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("id, subscription_tier, business_name")
         .eq("user_id", user?.id)
-        .single();
+        .single() as {
+          data: {
+            id: string;
+            subscription_tier: string;
+            business_name: string;
+          } | null;
+          error: any;
+        };
 
       if (providerError) throw providerError;
+      if (!providerData) throw new Error("Provider not found");
       setProvider(providerData);
 
       // Check if free tier and get bid limits
@@ -86,13 +96,18 @@ export default function ProviderBidSubmissionPage() {
         const year = now.getFullYear();
         const month = now.getMonth() + 1;
 
-        const { data: historyData } = await supabase
-          .from("provider_bid_history")
+        const { data: historyData } = await (supabase as any)
+      .from("provider_bid_history")
           .select("*")
           .eq("provider_id", providerData.id)
           .eq("year", year)
           .eq("month", month)
-          .single();
+          .single() as {
+            data: {
+              bids_used: number;
+              bids_limit: number;
+            } | null;
+          };
 
         if (historyData) {
           setBidLimitInfo({
@@ -110,23 +125,39 @@ export default function ProviderBidSubmissionPage() {
       }
 
       // Get service request details
-      const { data: requestData, error: requestError } = await supabase
-        .from("service_requests")
+      const { data: requestData, error: requestError } = await (supabase as any)
+      .from("service_requests")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", params?.id as string)
         .eq("status", "active")
-        .single();
+        .single() as {
+          data: {
+            id: string;
+            title: string;
+            description: string;
+            category: string;
+            location: string;
+            budget_min: number;
+            budget_max: number;
+            urgency: string;
+            photo_urls: string[];
+            bid_count: number;
+            created_at: string;
+          } | null;
+          error: any;
+        };
 
       if (requestError) throw requestError;
+      if (!requestData) throw new Error("Request not found");
       setRequest(requestData);
 
       // Check if already bid
-      const { data: existingBid } = await supabase
-        .from("service_request_bids")
+      const { data: existingBid } = await (supabase as any)
+      .from("service_request_bids")
         .select("id")
-        .eq("request_id", params.id)
+        .eq("request_id", params?.id as string)
         .eq("provider_id", providerData.id)
-        .single();
+        .single() as { data: { id: string } | null };
 
       if (existingBid) {
         setAlreadyBid(true);
@@ -174,16 +205,16 @@ export default function ProviderBidSubmissionPage() {
 
     try {
       // Create bid
-      const { error: bidError } = await supabase
-        .from("service_request_bids")
+      const { error: bidError } = await (supabase as any)
+      .from("service_request_bids")
         .insert({
-          request_id: params.id,
+          request_id: params?.id as string,
           provider_id: provider?.id,
           bid_amount: amount,
           estimated_completion_time: completionTime,
           message: message.trim(),
           status: "pending",
-        });
+        } as any);
 
       if (bidError) throw bidError;
 
@@ -193,19 +224,19 @@ export default function ProviderBidSubmissionPage() {
         const year = now.getFullYear();
         const month = now.getMonth() + 1;
 
-        await supabase.rpc("increment_provider_bid_count", {
+        await (supabase as any).rpc("increment_provider_bid_count", {
           p_provider_id: provider.id,
           p_year: year,
           p_month: month,
-        });
+        } as any);
       }
 
       // Track view
-      await supabase.from("service_request_views").upsert({
-        request_id: params.id,
+      await (supabase as any).from("service_request_views").upsert({
+        request_id: params?.id as string,
         provider_id: provider?.id,
         last_viewed_at: new Date().toISOString(),
-      });
+      } as any);
 
       // Redirect to provider bids page
       router.push("/provider/bids?success=true");

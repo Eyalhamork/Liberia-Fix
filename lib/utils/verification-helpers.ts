@@ -132,22 +132,22 @@ export async function getProviderVerificationStatus(
 }> {
   const supabase = createClient();
 
-  const { data: provider } = await supabase
-    .from("providers")
+  const { data: provider } = await (supabase as any)
+      .from("providers")
     .select("verification_status")
     .eq("id", providerId)
-    .single();
+    .single() as any as { data: { verification_status: string | null } | null };
 
-  const { data: verification } = await supabase
-    .from("provider_verification_documents")
+  const { data: verification } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("*")
     .eq("provider_id", providerId)
     .order("submitted_at", { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle() as { data: any | null };
 
   return {
-    status: provider?.verification_status || "not_submitted",
+    status: (provider?.verification_status as ProviderVerificationStatus) || "not_submitted",
     latestVerification: verification,
   };
 }
@@ -160,13 +160,13 @@ export async function canSubmitVerification(
 ): Promise<{ canSubmit: boolean; reason?: string }> {
   const supabase = createClient();
 
-  const { data: existingVerification } = await supabase
-    .from("provider_verification_documents")
+  const { data: existingVerification } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("status")
     .eq("provider_id", providerId)
     .order("submitted_at", { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle() as { data: { status: string } | null };
 
   if (!existingVerification) {
     return { canSubmit: true };
@@ -220,7 +220,7 @@ export async function submitVerification(
 
   try {
     // Insert verification document
-    const { data: verification, error: insertError } = await supabase
+    const { data: verification, error: insertError } = await (supabase as any)
       .from("provider_verification_documents")
       .insert({
         provider_id: providerId,
@@ -233,40 +233,40 @@ export async function submitVerification(
         issue_date: formData.issueDate || null,
         expiry_date: formData.expiryDate || null,
         status: "pending",
-      })
+      } as any)
       .select()
-      .single();
+      .single() as { data: any | null; error: any };
 
     if (insertError) throw insertError;
 
     // Update provider status
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from("providers")
       .update({
         verification_status: "pending",
         verification_submitted_at: new Date().toISOString(),
-      })
-      .eq("id", providerId);
+      } as any)
+      .eq("id", providerId) as { error: any };
 
     if (updateError) throw updateError;
 
     // Get provider user_id for notification
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("user_id")
       .eq("id", providerId)
-      .single();
+      .single() as { data: { user_id: string } | null };
 
     // Create notification
     if (provider) {
-      await supabase.from("booking_notifications").insert({
+      await (supabase as any).from("booking_notifications").insert({
         user_id: provider.user_id,
         type: "verification_submitted",
         title: "Verification Submitted",
         message:
           "Your verification documents have been submitted for review. We will notify you within 24-48 hours.",
         read: false,
-      });
+      } as any);
     }
 
     return { success: true, data: verification };
@@ -411,10 +411,10 @@ export async function getVerificationStats(): Promise<{
 }> {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("verification_stats")
+  const { data } = await (supabase as any)
+      .from("verification_stats")
     .select("*")
-    .single();
+    .single() as { data: { pending_count: number; approved_count: number; rejected_count: number; avg_review_hours: number } | null };
 
   return {
     pending: data?.pending_count || 0,
@@ -443,7 +443,7 @@ export async function checkDuplicateDocumentNumber(
     query = query.neq("provider_id", excludeProviderId);
   }
 
-  const { data } = await query.limit(1).maybeSingle();
+  const { data } = await query.limit(1).maybeSingle() as { data: { providers: any } | null };
 
   return {
     isDuplicate: !!data,
@@ -462,11 +462,11 @@ export async function getRejectionReasonsStats(): Promise<
 > {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("provider_verification_documents")
+  const { data } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("rejection_reason")
     .eq("status", "rejected")
-    .not("rejection_reason", "is", null);
+    .not("rejection_reason", "is", null) as { data: Array<{ rejection_reason: string | null }> | null };
 
   // Count occurrences
   const reasonCounts: { [key: string]: number } = {};
@@ -621,11 +621,11 @@ export async function getSignedDocumentUrl(
 export async function isAdmin(userId: string): Promise<boolean> {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("profiles")
+  const { data } = await (supabase as any)
+      .from("profiles")
     .select("user_type")
     .eq("id", userId)
-    .single();
+    .single() as { data: { user_type: string | null } | null };
 
   return data?.user_type === "admin";
 }
@@ -642,13 +642,13 @@ export async function logAdminAction(
 ): Promise<void> {
   const supabase = createClient();
 
-  await supabase.from("admin_activity_log").insert({
+  await (supabase as any).from("admin_activity_log").insert({
     admin_id: adminId,
     action,
     target_type: targetType,
     target_id: targetId,
     details: details || {},
-  });
+  } as any);
 }
 
 /**
@@ -665,11 +665,11 @@ export async function getVerificationCompletionRate(
 }> {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("provider_verification_documents")
+  const { data } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("status")
     .gte("submitted_at", startDate.toISOString())
-    .lte("submitted_at", endDate.toISOString());
+    .lte("submitted_at", endDate.toISOString()) as { data: Array<{ status: string }> | null };
 
   const submitted = data?.length || 0;
   const approved = data?.filter((d) => d.status === "approved").length || 0;
@@ -693,8 +693,8 @@ export async function getPendingVerifications(
 ): Promise<Array<any>> {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("provider_verification_documents")
+  const { data } = await (supabase as any)
+      .from("provider_verification_documents")
     .select(
       `
       *,
@@ -712,7 +712,7 @@ export async function getPendingVerifications(
     )
     .eq("status", "pending")
     .order("submitted_at", { ascending: true })
-    .range(offset, offset + limit - 1);
+    .range(offset, offset + limit - 1) as { data: Array<any> | null };
 
   return data || [];
 }
@@ -726,17 +726,17 @@ export async function getQueuePosition(
   const supabase = createClient();
 
   // Get submission time of this verification
-  const { data: verification } = await supabase
-    .from("provider_verification_documents")
+  const { data: verification } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("submitted_at")
     .eq("id", verificationId)
-    .single();
+    .single() as { data: { submitted_at: string } | null };
 
   if (!verification) return 0;
 
   // Count how many pending verifications were submitted before this one
-  const { count } = await supabase
-    .from("provider_verification_documents")
+  const { count } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("*", { count: "exact", head: true })
     .eq("status", "pending")
     .lt("submitted_at", verification.submitted_at);
@@ -790,8 +790,8 @@ export async function exportVerificationData(
 ): Promise<string> {
   const supabase = createClient();
 
-  const { data } = await supabase
-    .from("provider_verification_documents")
+  const { data } = await (supabase as any)
+      .from("provider_verification_documents")
     .select(
       `
       *,
@@ -807,7 +807,25 @@ export async function exportVerificationData(
     )
     .gte("submitted_at", startDate.toISOString())
     .lte("submitted_at", endDate.toISOString())
-    .order("submitted_at", { ascending: false });
+    .order("submitted_at", { ascending: false }) as {
+      data: Array<{
+        id: string;
+        document_type: string;
+        document_number: string;
+        status: string;
+        submitted_at: string;
+        reviewed_at: string | null;
+        rejection_reason: string | null;
+        providers: {
+          business_name: string | null;
+          profiles: {
+            full_name: string | null;
+            email: string | null;
+            location: string | null;
+          } | null;
+        } | null;
+      }> | null;
+    };
 
   if (!data) return "";
 
@@ -871,18 +889,18 @@ export async function sendAdminReminder(): Promise<void> {
   const yesterday = new Date();
   yesterday.setHours(yesterday.getHours() - 24);
 
-  const { count } = await supabase
-    .from("provider_verification_documents")
+  const { count } = await (supabase as any)
+      .from("provider_verification_documents")
     .select("*", { count: "exact", head: true })
     .eq("status", "pending")
     .lt("submitted_at", yesterday.toISOString());
 
   if (count && count > 0) {
     // Send notification to all admins
-    const { data: admins } = await supabase
+    const { data: admins } = await (supabase as any)
       .from("profiles")
       .select("id")
-      .eq("user_type", "admin");
+      .eq("user_type", "admin") as { data: Array<{ id: string }> | null };
 
     if (admins) {
       const notifications = admins.map((admin) => ({
@@ -895,7 +913,7 @@ export async function sendAdminReminder(): Promise<void> {
         read: false,
       }));
 
-      await supabase.from("booking_notifications").insert(notifications);
+      await (supabase as any).from("booking_notifications").insert(notifications as any);
     }
   }
 }

@@ -58,11 +58,16 @@ function ProviderSubscriptionContent() {
   const fetchProviderTier = async () => {
     setLoading(true);
 
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("subscription_tier, promo_expires_at")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as any as {
+        data: {
+          subscription_tier: "free" | "pro";
+          promo_expires_at: string | null;
+        } | null;
+      };
 
     if (provider) {
       const promoActive =
@@ -74,13 +79,13 @@ function ProviderSubscriptionContent() {
       );
     }
 
-    const { data: subData } = await supabase
+    const { data: subData } = await (supabase as any)
       .from("provider_subscriptions")
       .select("*")
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .single() as any as { data: any | null };
 
     setSubscription(subData);
     setLoading(false);
@@ -102,10 +107,10 @@ function ProviderSubscriptionContent() {
       console.log("💳 Creating simulated transaction...");
 
       // Create simulated transaction
-      const { data: transaction, error: txError } = await supabase
-        .from("transactions")
+      const { data: transaction, error: txError } = await (supabase
+        .from("transactions") as any)
         .insert({
-          user_id: user?.id,
+          user_id: user?.id as string,
           amount: 20,
           type: "provider_subscription",
           status: "completed",
@@ -116,24 +121,24 @@ function ProviderSubscriptionContent() {
             billingCycle: "monthly",
             simulation: true,
           },
-        })
+        } as any)
         .select()
-        .single();
+        .single() as { data: { id: string } | null; error: any };
 
       if (txError) {
         console.error("❌ Transaction creation failed:", txError);
         throw new Error(`Transaction error: ${txError.message}`);
       }
 
-      console.log("✅ Transaction created:", transaction.id);
+      console.log("✅ Transaction created:", transaction?.id);
 
       // Get provider record
       console.log("👤 Getting provider record...");
-      const { data: provider, error: providerError } = await supabase
-        .from("providers")
+      const { data: provider, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("*")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as any as { data: { id: string; user_id: string } | null; error: any };
 
       if (providerError || !provider) {
         throw new Error("Provider profile not found");
@@ -147,36 +152,36 @@ function ProviderSubscriptionContent() {
       expiresAt.setMonth(expiresAt.getMonth() + 1);
 
       // Check if provider already has an active subscription
-      const { data: existingSubscription } = await supabase
-        .from("provider_subscriptions")
+      const { data: existingSubscription } = await (supabase as any)
+      .from("provider_subscriptions")
         .select("*")
         .eq("provider_id", provider.id)
         .eq("status", "active")
-        .single();
+        .single() as { data: { id: string } | null };
 
       if (existingSubscription) {
         console.log("⚠️ Cancelling existing subscription...");
-        await supabase
-          .from("provider_subscriptions")
-          .update({ status: "cancelled", auto_renew: false })
+        await (supabase
+          .from("provider_subscriptions") as any)
+          .update({ status: "cancelled", auto_renew: false } as any)
           .eq("id", existingSubscription.id);
       }
 
       // Create new subscription
       console.log("📝 Creating subscription...");
-      const { data: subscription, error: subscriptionError } = await supabase
-        .from("provider_subscriptions")
+      const { data: subscription, error: subscriptionError } = await (supabase
+        .from("provider_subscriptions") as any)
         .insert({
-          provider_id: provider.id,
+          provider_id: provider.id as string,
           tier: "pro",
           status: "active",
           amount: 20,
           starts_at: now.toISOString(),
           expires_at: expiresAt.toISOString(),
           auto_renew: true,
-        })
+        } as any)
         .select()
-        .single();
+        .single() as { data: { id: string } | null; error: any };
 
       if (subscriptionError || !subscription) {
         console.error("❌ Subscription creation failed:", subscriptionError);
@@ -187,19 +192,19 @@ function ProviderSubscriptionContent() {
 
       // Update provider tier
       console.log("🔄 Updating provider tier...");
-      const { error: updateError } = await supabase
-        .from("providers")
+      const { error: updateError } = await (supabase
+        .from("providers") as any)
         .update({
           subscription_tier: "pro",
           promo_expires_at: null,
-        })
-        .eq("id", provider.id);
+        } as any)
+        .eq("id", provider.id as string);
 
       if (updateError) {
         console.error("❌ Provider tier update failed:", updateError);
         // Rollback subscription
-        await supabase
-          .from("provider_subscriptions")
+        await (supabase as any)
+      .from("provider_subscriptions")
           .delete()
           .eq("id", subscription.id);
         throw new Error("Failed to upgrade account");
@@ -208,10 +213,10 @@ function ProviderSubscriptionContent() {
       console.log("✅ Provider upgraded to Pro!");
 
       // Link transaction to subscription
-      await supabase
-        .from("transactions")
-        .update({ related_subscription_id: subscription.id })
-        .eq("id", transaction.id);
+      await (supabase
+        .from("transactions") as any)
+        .update({ related_subscription_id: subscription.id } as any)
+        .eq("id", transaction?.id as string);
 
       console.log("🎉 Subscription activation complete!");
 

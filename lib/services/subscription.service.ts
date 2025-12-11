@@ -5,7 +5,7 @@
 // =====================================================
 
 import { createClient } from "@supabase/supabase-js";
-import { PaymentService } from "./payment.service";
+import { MTNMoMoService } from "./payment.service";
 import {
   ProcessSubscriptionBillingRequest,
   ProcessSubscriptionBillingResponse,
@@ -15,11 +15,11 @@ import {
 
 export class SubscriptionService {
   private supabase: ReturnType<typeof createClient>;
-  private paymentService: PaymentService;
+  private paymentService: MTNMoMoService;
 
   constructor(
     supabaseClient: ReturnType<typeof createClient>,
-    paymentService: PaymentService
+    paymentService: MTNMoMoService
   ) {
     this.supabase = supabaseClient;
     this.paymentService = paymentService;
@@ -38,7 +38,7 @@ export class SubscriptionService {
   ): Promise<ProcessSubscriptionBillingResponse> {
     try {
       // Get subscription details
-      const { data: subscription, error: subError } = await this.supabase
+      const { data: subscription, error: subError } = await (this.supabase as any)
         .from("provider_subscriptions")
         .select(
           `
@@ -55,7 +55,19 @@ export class SubscriptionService {
         `
         )
         .eq("id", request.subscriptionId)
-        .single();
+        .single() as {
+        data: {
+          id: string;
+          status: string;
+          auto_renew: boolean;
+          providers: {
+            id: string;
+            user_id: string;
+            profiles: { phone: string | null; email: string | null; full_name: string | null };
+          };
+        } | null;
+        error: any;
+      };
 
       if (subError || !subscription) {
         return {
@@ -86,14 +98,17 @@ export class SubscriptionService {
       }
 
       // Check if already billed for this cycle
-      const { data: existingBilling } = await this.supabase
+      const { data: existingBilling } = await (this.supabase as any)
         .from("subscription_billing_history")
         .select("id")
         .eq("subscription_id", request.subscriptionId)
         .eq("billing_cycle_start", request.billingCycleStart)
         .eq("billing_cycle_end", request.billingCycleEnd)
         .eq("status", "paid")
-        .single();
+        .single() as {
+        data: { id: string } | null;
+        error: any;
+      };
 
       if (existingBilling) {
         return {
@@ -105,7 +120,7 @@ export class SubscriptionService {
       }
 
       // Create billing history record
-      const { data: billingHistory, error: billingError } = await this.supabase
+      const { data: billingHistory, error: billingError } = await ((this.supabase as any)
         .from("subscription_billing_history")
         .insert({
           subscription_id: request.subscriptionId,
@@ -116,7 +131,10 @@ export class SubscriptionService {
           billed_at: new Date().toISOString(),
         })
         .select()
-        .single();
+        .single()) as {
+        data: { id: string; attempts: number } | null;
+        error: any;
+      };
 
       if (billingError || !billingHistory) {
         return {
@@ -131,13 +149,13 @@ export class SubscriptionService {
       const providerPhone = subscription.providers.profiles.phone;
 
       if (!providerPhone) {
-        await this.supabase
+        await ((this.supabase as any)
           .from("subscription_billing_history")
           .update({
             status: "failed",
             last_error: "Provider phone number not found",
           })
-          .eq("id", billingHistory.id);
+          .eq("id", billingHistory.id));
 
         return {
           success: false,
@@ -148,16 +166,16 @@ export class SubscriptionService {
       }
 
       // Update billing status to processing
-      await this.supabase
+      await ((this.supabase as any)
         .from("subscription_billing_history")
         .update({
           status: "processing",
           attempts: billingHistory.attempts + 1,
         })
-        .eq("id", billingHistory.id);
+        .eq("id", billingHistory.id));
 
       // Initiate payment
-      const paymentResult = await this.paymentService.initiatePayment({
+      const paymentResult = await (this.paymentService as any).initiatePayment({
         userId: subscription.providers.user_id,
         amount: request.amount,
         currency: "USD",
@@ -174,13 +192,13 @@ export class SubscriptionService {
 
       if (paymentResult.success) {
         // Payment initiated successfully
-        await this.supabase
+        await ((this.supabase as any)
           .from("subscription_billing_history")
           .update({
             transaction_id: paymentResult.transactionId,
             status: "processing",
           })
-          .eq("id", billingHistory.id);
+          .eq("id", billingHistory.id));
 
         return {
           success: true,
@@ -193,17 +211,17 @@ export class SubscriptionService {
         // Payment initiation failed - schedule retry
         const nextRetry = this.calculateNextRetry(billingHistory.attempts + 1);
 
-        await this.supabase
+        await ((this.supabase as any)
           .from("subscription_billing_history")
           .update({
             status: "failed",
             last_error: paymentResult.error,
             next_retry_at: nextRetry,
           })
-          .eq("id", billingHistory.id);
+          .eq("id", billingHistory.id));
 
         // Add to retry queue
-        await this.supabase.from("payment_retry_queue").insert({
+        await (this.supabase as any).from("payment_retry_queue").insert({
           transaction_id: paymentResult.transactionId,
           retry_attempt: billingHistory.attempts + 1,
           next_retry_at: nextRetry,
@@ -256,13 +274,21 @@ export class SubscriptionService {
         dueDate.getDate() + SUBSCRIPTION_BILLING_CONFIG.ADVANCE_BILLING_DAYS
       );
 
-      const { data: subscriptions, error } = await this.supabase
+      const { data: subscriptions, error } = await (this.supabase as any)
         .from("provider_subscriptions")
         .select("*")
         .eq("status", "active")
         .eq("auto_renew", true)
         .lte("expires_at", dueDate.toISOString())
-        .gte("expires_at", new Date().toISOString());
+        .gte("expires_at", new Date().toISOString()) as {
+        data: Array<{
+          id: string;
+          provider_id: string;
+          amount: number;
+          expires_at: string;
+        }> | null;
+        error: any;
+      };
 
       if (error || !subscriptions) {
         results.errors.push("Failed to fetch subscriptions: " + error?.message);
@@ -337,11 +363,19 @@ export class SubscriptionService {
   }> {
     try {
       // Get subscription
-      const { data: subscription, error: subError } = await this.supabase
+      const { data: subscription, error: subError } = await (this.supabase as any)
         .from("provider_subscriptions")
         .select("*, providers!inner(id)")
         .eq("id", subscriptionId)
-        .single();
+        .single() as {
+        data: {
+          id: string;
+          expires_at: string;
+          provider_id: string;
+          providers: { id: string };
+        } | null;
+        error: any;
+      };
 
       if (subError || !subscription) {
         return {
@@ -357,13 +391,13 @@ export class SubscriptionService {
       );
 
       // Update subscription status
-      const { error: updateError } = await this.supabase
+      const { error: updateError } = await ((this.supabase as any)
         .from("provider_subscriptions")
         .update({
           status: "cancelled",
           auto_renew: false,
         })
-        .eq("id", subscriptionId);
+        .eq("id", subscriptionId));
 
       if (updateError) {
         return {
@@ -373,7 +407,7 @@ export class SubscriptionService {
       }
 
       // Log cancellation
-      await this.supabase.from("subscription_cancellations").insert({
+      await (this.supabase as any).from("subscription_cancellations").insert({
         subscription_id: subscriptionId,
         provider_id: subscription.provider_id,
         cancelled_by: cancelledBy,
@@ -384,10 +418,10 @@ export class SubscriptionService {
 
       // If grace period hasn't started, downgrade immediately
       if (new Date() > new Date(subscription.expires_at)) {
-        await this.supabase
+        await ((this.supabase as any)
           .from("providers")
           .update({ subscription_tier: "free" })
-          .eq("id", subscription.provider_id);
+          .eq("id", subscription.provider_id));
       }
 
       return {
@@ -424,11 +458,14 @@ export class SubscriptionService {
       );
 
       // Get expired subscriptions past grace period
-      const { data: expiredSubscriptions, error } = await this.supabase
+      const { data: expiredSubscriptions, error } = await (this.supabase as any)
         .from("provider_subscriptions")
         .select("*")
         .eq("status", "active")
-        .lt("expires_at", gracePeriodEnd.toISOString());
+        .lt("expires_at", gracePeriodEnd.toISOString()) as {
+        data: Array<{ id: string; provider_id: string }> | null;
+        error: any;
+      };
 
       if (error || !expiredSubscriptions) {
         console.error("Failed to fetch expired subscriptions:", error);
@@ -441,16 +478,16 @@ export class SubscriptionService {
 
         try {
           // Mark subscription as expired
-          await this.supabase
+          await ((this.supabase as any)
             .from("provider_subscriptions")
             .update({ status: "expired" })
-            .eq("id", subscription.id);
+            .eq("id", subscription.id));
 
           // Downgrade provider to free tier
-          await this.supabase
+          await ((this.supabase as any)
             .from("providers")
             .update({ subscription_tier: "free" })
-            .eq("id", subscription.provider_id);
+            .eq("id", subscription.provider_id));
 
           results.downgraded++;
 
@@ -482,11 +519,18 @@ export class SubscriptionService {
     error?: string;
   }> {
     try {
-      const { data: subscription, error: subError } = await this.supabase
+      const { data: subscription, error: subError } = await (this.supabase as any)
         .from("provider_subscriptions")
         .select("*")
         .eq("id", subscriptionId)
-        .single();
+        .single() as {
+        data: {
+          id: string;
+          status: string;
+          expires_at: string;
+        } | null;
+        error: any;
+      };
 
       if (subError || !subscription) {
         return {
@@ -518,13 +562,13 @@ export class SubscriptionService {
       }
 
       // Reactivate subscription
-      const { error: updateError } = await this.supabase
+      const { error: updateError } = await ((this.supabase as any)
         .from("provider_subscriptions")
         .update({
           status: "active",
           auto_renew: true,
         })
-        .eq("id", subscriptionId);
+        .eq("id", subscriptionId));
 
       if (updateError) {
         return {
@@ -569,7 +613,7 @@ export class SubscriptionService {
       const now = new Date();
 
       // Get retries that are due
-      const { data: retries, error } = await this.supabase
+      const { data: retries, error } = await (this.supabase as any)
         .from("payment_retry_queue")
         .select(
           `
@@ -579,7 +623,24 @@ export class SubscriptionService {
         )
         .eq("status", "queued")
         .lte("next_retry_at", now.toISOString())
-        .lt("retry_attempt", "max_retries");
+        .lt("retry_attempt", "max_retries") as {
+        data: Array<{
+          id: string;
+          retry_attempt: number;
+          max_retries: number;
+          payment_transactions: {
+            user_id: string;
+            amount: number;
+            currency: string;
+            transaction_type: string;
+            payer_phone: string;
+            payer_name: string;
+            related_booking_id: string | null;
+            related_subscription_id: string | null;
+          };
+        }> | null;
+        error: any;
+      };
 
       if (error || !retries) {
         console.error("Failed to fetch payment retries:", error);
@@ -591,18 +652,18 @@ export class SubscriptionService {
 
         try {
           // Mark as processing
-          await this.supabase
+          await ((this.supabase as any)
             .from("payment_retry_queue")
             .update({
               status: "processing",
               last_attempt_at: now.toISOString(),
             })
-            .eq("id", retry.id);
+            .eq("id", retry.id));
 
           const transaction = retry.payment_transactions;
 
           // Retry payment
-          const paymentResult = await this.paymentService.initiatePayment({
+          const paymentResult = await (this.paymentService as any).initiatePayment({
             userId: transaction.user_id,
             amount: transaction.amount,
             currency: transaction.currency,
@@ -616,10 +677,10 @@ export class SubscriptionService {
 
           if (paymentResult.success) {
             // Retry successful
-            await this.supabase
+            await ((this.supabase as any)
               .from("payment_retry_queue")
               .update({ status: "completed" })
-              .eq("id", retry.id);
+              .eq("id", retry.id));
 
             results.successful++;
           } else {
@@ -628,13 +689,13 @@ export class SubscriptionService {
 
             if (nextAttempt >= retry.max_retries) {
               // Max retries reached
-              await this.supabase
+              await ((this.supabase as any)
                 .from("payment_retry_queue")
                 .update({
                   status: "max_retries_reached",
                   last_error: paymentResult.error,
                 })
-                .eq("id", retry.id);
+                .eq("id", retry.id));
 
               // Handle subscription cancellation if applicable
               if (transaction.related_subscription_id) {
@@ -649,7 +710,7 @@ export class SubscriptionService {
               // Schedule next retry
               const nextRetry = this.calculateNextRetry(nextAttempt);
 
-              await this.supabase
+              await ((this.supabase as any)
                 .from("payment_retry_queue")
                 .update({
                   status: "queued",
@@ -657,7 +718,7 @@ export class SubscriptionService {
                   next_retry_at: nextRetry,
                   last_error: paymentResult.error,
                 })
-                .eq("id", retry.id);
+                .eq("id", retry.id));
             }
 
             results.failed++;

@@ -68,8 +68,8 @@ function CreateServiceRequestContent() {
   const fetchCategories = async () => {
     try {
       setLoadingCategories(true);
-      const { data, error: fetchError } = await supabase
-        .from("service_categories")
+      const { data, error: fetchError } = await (supabase as any)
+      .from("service_categories")
         .select("id, name, icon, description")
         .eq("active", true)
         .order("name");
@@ -195,11 +195,11 @@ function CreateServiceRequestContent() {
 
       console.log("📝 [SUBMIT] Insert data:", insertData);
 
-      const { data, error: insertError } = await supabase
-        .from("service_requests")
-        .insert(insertData)
+      const { data, error: insertError } = await (supabase as any)
+      .from("service_requests")
+        .insert(insertData as any)
         .select()
-        .single();
+        .single() as { data: { id: string } | null; error: any };
 
       if (insertError) {
         console.error("❌ [SUBMIT] Database insert failed:", insertError);

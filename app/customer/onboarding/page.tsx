@@ -233,14 +233,14 @@ function CustomerOnboardingContent() {
       }
 
       // Update profile with all data
-      const { error: profileError } = await supabase
-        .from("profiles")
+      const { error: profileError } = await (supabase as any)
+      .from("profiles")
         .update({
           location: formData.location,
           phone: formData.phone.replace(/\s/g, ""), // Remove spaces before saving
           avatar_url: finalAvatarUrl,
           onboarding_completed: true,
-        })
+        } as any)
         .eq("id", user.id);
 
       if (profileError) {

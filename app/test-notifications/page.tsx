@@ -86,11 +86,11 @@ export default function TestNotificationsPage() {
         status: "Sending...",
       });
 
-      const { data, error } = await supabase
-        .from("notifications")
+      const { data, error } = await (supabase as any)
+      .from("notifications")
         .insert(insertData)
         .select()
-        .single();
+        .single() as any as { data: any; error: any };
 
       if (error) {
         console.error("❌ Database error:", error);

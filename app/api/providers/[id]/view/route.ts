@@ -14,8 +14,8 @@ export async function POST(
   const providerId = params.id;
 
   // Get provider details
-  const { data: provider, error: providerError } = await supabase
-    .from("providers")
+  const { data: provider, error: providerError } = await (supabase as any)
+      .from("providers")
     .select("id, user_id, business_name, profile_views")
     .eq("id", providerId)
     .single();
@@ -27,8 +27,8 @@ export async function POST(
   // Increment profile views
   const newViewCount = (provider.profile_views || 0) + 1;
 
-  const { error: updateError } = await supabase
-    .from("providers")
+  const { error: updateError } = await (supabase as any)
+      .from("providers")
     .update({
       profile_views: newViewCount,
     })
@@ -43,8 +43,8 @@ export async function POST(
   if (MILESTONES.includes(newViewCount)) {
     try {
       // Check if we already sent notification for this milestone
-      const { data: existingNotif } = await supabase
-        .from("notifications")
+      const { data: existingNotif } = await (supabase as any)
+      .from("notifications")
         .select("id")
         .eq("user_id", provider.user_id)
         .eq("type", "profile_views_milestone")

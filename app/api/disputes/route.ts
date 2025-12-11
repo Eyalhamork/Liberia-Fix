@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get booking details
-    const { data: booking, error: bookingError } = await supabase
+    const { data: booking, error: bookingError } = await (supabase as any)
       .from("bookings")
       .select(
         `
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if dispute already exists
-    const { data: existingDispute } = await supabase
+    const { data: existingDispute } = await (supabase as any)
       .from("payment_disputes")
       .select("id")
       .eq("booking_id", booking_id)
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create dispute
-    const { data: dispute, error: insertError } = await supabase
+    const { data: dispute, error: insertError } = await (supabase as any)
       .from("payment_disputes")
       .insert({
         booking_id,
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: userData } = await supabase
+    const { data: userData } = await (supabase as any)
       .from("users")
       .select("user_type")
       .eq("id", user.id)
@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
     const isAdmin = userData?.user_type === "admin";
 
     // Build query based on user type
-    let query = supabase
+    let query = (supabase as any)
       .from("payment_disputes")
       .select(
         `

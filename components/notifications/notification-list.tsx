@@ -127,11 +127,11 @@ export function NotificationList({
       console.log("Marking notification as read:", notificationId);
 
       // Mark as read first (without waiting for response to avoid blocking)
-      supabase
-        .from("notifications")
+      (supabase
+        .from("notifications") as any)
         .update({ read: true, read_at: new Date().toISOString() })
         .eq("id", notificationId)
-        .then(({ error }) => {
+        .then(({ error }: any) => {
           if (error) {
             console.error("Error marking notification as read:", error);
           } else {

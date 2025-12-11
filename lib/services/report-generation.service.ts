@@ -70,7 +70,7 @@ export class ReportGenerationService {
         .from("providers")
         .select("id, user_id, business_name")
         .eq("subscription_tier", "free")
-        .eq("active", true);
+        .eq("active", true) as any as { data: Array<any> | null; error: any };
 
       if (providersError) {
         result.errors.push(
@@ -104,7 +104,7 @@ export class ReportGenerationService {
             .lte("viewed_at", endDate.toISOString());
 
           // Create notification
-          await this.supabase.from("notifications").insert({
+          await (this.supabase as any).from("notifications").insert({
             user_id: provider.user_id,
             type: "weekly_summary_free",
             title: "Weekly Summary 📊",
@@ -164,7 +164,7 @@ export class ReportGenerationService {
         .from("providers")
         .select("id, user_id, business_name")
         .eq("subscription_tier", "pro")
-        .eq("active", true);
+        .eq("active", true) as any as { data: Array<any> | null; error: any };
 
       if (providersError) {
         result.errors.push(
@@ -211,7 +211,7 @@ export class ReportGenerationService {
           );
 
           // Create notification
-          await this.supabase.from("notifications").insert({
+          await (this.supabase as any).from("notifications").insert({
             user_id: provider.user_id,
             type: "performance_report_pro",
             title: `${
@@ -321,7 +321,7 @@ export class ReportGenerationService {
       // Send notification to each admin
       for (const admin of admins || []) {
         try {
-          await this.supabase.from("notifications").insert({
+          await (this.supabase as any).from("notifications").insert({
             user_id: admin.id,
             type: "daily_revenue_report",
             title: "Daily Revenue Report 💰",
@@ -413,7 +413,7 @@ export class ReportGenerationService {
       // Send notification to each admin
       for (const admin of admins || []) {
         try {
-          await this.supabase.from("notifications").insert({
+          await (this.supabase as any).from("notifications").insert({
             user_id: admin.id,
             type: "weekly_user_growth",
             title: "Weekly User Growth 📈",
@@ -515,7 +515,7 @@ export class ReportGenerationService {
       // Send notification to each admin
       for (const admin of admins || []) {
         try {
-          await this.supabase.from("notifications").insert({
+          await (this.supabase as any).from("notifications").insert({
             user_id: admin.id,
             type: "monthly_performance_report",
             title: "Monthly Performance Report 📊",

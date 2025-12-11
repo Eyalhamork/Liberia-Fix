@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default async function AdminDashboard() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Fetch all stats in parallel
   const [
@@ -33,15 +33,15 @@ export default async function AdminDashboard() {
     { data: recentProviders },
   ] = await Promise.all([
     // Users
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
+    (supabase as any).from("profiles").select("*", { count: "exact", head: true }),
     // Providers
-    supabase.from("providers").select("*", { count: "exact", head: true }),
+    (supabase as any).from("providers").select("*", { count: "exact", head: true }),
     supabase
       .from("providers")
       .select("*", { count: "exact", head: true })
       .eq("active", true),
     // Bookings
-    supabase.from("bookings").select("*", { count: "exact", head: true }),
+    (supabase as any).from("bookings").select("*", { count: "exact", head: true }),
     supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
@@ -51,7 +51,7 @@ export default async function AdminDashboard() {
       .select("*", { count: "exact", head: true })
       .eq("status", "completed"),
     // Reviews
-    supabase.from("reviews").select("*", { count: "exact", head: true }),
+    (supabase as any).from("reviews").select("*", { count: "exact", head: true }),
     supabase
       .from("reviews")
       .select("*", { count: "exact", head: true })
@@ -84,7 +84,7 @@ export default async function AdminDashboard() {
 
   // Calculate revenue (if you track it)
   const totalRevenue =
-    recentTransactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
+    recentTransactions?.reduce((sum: number, t: any) => sum + (t.amount || 0), 0) || 0;
 
   return (
     <div className="space-y-8">
@@ -163,7 +163,7 @@ export default async function AdminDashboard() {
           </h3>
           <div className="space-y-4">
             {recentUsers && recentUsers.length > 0 ? (
-              recentUsers.map((user) => (
+              recentUsers.map((user: any) => (
                 <div
                   key={user.id}
                   className="flex items-center justify-between py-3 border-b last:border-b-0"
@@ -197,7 +197,7 @@ export default async function AdminDashboard() {
           </h3>
           <div className="space-y-4">
             {recentProviders && recentProviders.length > 0 ? (
-              recentProviders.map((provider) => (
+              recentProviders.map((provider: any) => (
                 <div
                   key={provider.id}
                   className="flex items-center justify-between py-3 border-b last:border-b-0"
@@ -252,7 +252,7 @@ export default async function AdminDashboard() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {recentTransactions && recentTransactions.length > 0 ? (
-                recentTransactions.map((transaction) => (
+                recentTransactions.map((transaction: any) => (
                   <tr key={transaction.id}>
                     <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(transaction.created_at).toLocaleDateString()}

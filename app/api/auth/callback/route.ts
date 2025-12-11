@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Exchange code for session
     const { data, error: exchangeError } =

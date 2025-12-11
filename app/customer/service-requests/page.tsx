@@ -86,11 +86,14 @@ function ServiceRequestsContent() {
 
   const fetchCategories = async (signal: AbortSignal) => {
     try {
-      const { data, error } = await supabase
-        .from("service_categories")
+      const { data, error } = await (supabase as any)
+      .from("service_categories")
         .select("id, name, icon")
         .eq("active", true)
-        .abortSignal(signal);
+        .abortSignal(signal) as {
+          data: Array<{ id: string; name: string; icon: string }> | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted && data) {
         // Create a lookup object for easy access
@@ -118,7 +121,7 @@ function ServiceRequestsContent() {
       let query = supabase
         .from("service_requests")
         .select("*")
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .order("created_at", { ascending: false })
         .abortSignal(signal); // Add abort signal
 
@@ -128,14 +131,30 @@ function ServiceRequestsContent() {
         query = query.in("status", ["closed", "expired"]);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query as {
+        data: Array<{
+          id: string;
+          title: string;
+          status: string;
+          bid_count: number;
+          bids_count?: number;
+          budget_min: number;
+          budget_max: number;
+          location: string;
+          urgency: string;
+          payment_status: string;
+          service_category_id: string;
+          created_at: string;
+        }> | null;
+        error: any;
+      };
 
       // Only update state if component is still mounted and not aborted
       if (isMountedRef.current && !signal.aborted) {
         if (error) {
           console.error("Error fetching requests:", error);
         } else {
-          setRequests(data || []);
+          setRequests((data || []) as any);
 
           // Calculate stats
           const active =
@@ -238,11 +257,11 @@ function ServiceRequestsContent() {
     if (!confirm("Are you sure you want to close this request?")) return;
 
     try {
-      const { error } = await supabase
-        .from("service_requests")
+      const { error } = await (supabase as any)
+      .from("service_requests")
         .update({
           status: "closed",
-        })
+        } as any)
         .eq("id", requestId);
 
       if (error) throw error;

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already reported this content
-    const { data: existingReport } = await supabase
+    const { data: existingReport } = await (supabase as any)
       .from("content_reports")
       .select("id")
       .eq("reporter_id", user.id)
@@ -90,14 +90,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get reporter details
-    const { data: reporter } = await supabase
+    const { data: reporter } = await (supabase as any)
       .from("users")
       .select("full_name, user_type")
       .eq("id", user.id)
       .single();
 
     // Create report
-    const { data: report, error: insertError } = await supabase
+    const { data: report, error: insertError } = await (supabase as any)
       .from("content_reports")
       .insert({
         reporter_id: user.id,
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: userData } = await supabase
+    const { data: userData } = await (supabase as any)
       .from("users")
       .select("user_type")
       .eq("id", user.id)

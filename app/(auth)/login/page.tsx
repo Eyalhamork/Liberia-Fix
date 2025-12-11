@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   // Check for error from URL params (e.g., from OAuth callback)
   useState(() => {
-    const errorParam = searchParams.get("error");
+    const errorParam = searchParams?.get("error");
     if (errorParam) {
       const errorMessages: Record<string, string> = {
         no_code: "Authorization code missing",
@@ -49,9 +49,6 @@ export default function LoginPage() {
         await supabase.auth.signInWithPassword({
           email,
           password,
-          options: {
-            persistSession: true,
-          },
         });
 
       if (signInError) {
@@ -61,11 +58,11 @@ export default function LoginPage() {
       }
 
       if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
+        const { data: profile, error: profileError } = await (supabase as any)
+      .from("profiles")
           .select("user_type, is_admin")
           .eq("id", data.user.id)
-          .single();
+          .single() as { data: { user_type: string | null; is_admin: boolean | null } | null; error: any };
 
         if (!profile) {
           setError("Failed to load user profile");

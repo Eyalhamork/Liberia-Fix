@@ -50,7 +50,7 @@ function ProviderMessagesPageContent() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
 
-  const customerId = params.userId as string;
+  const customerId = params?.userId as string;
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -99,12 +99,19 @@ function ProviderMessagesPageContent() {
   const fetchOtherUser = async (signal: AbortSignal) => {
     try {
       // Fetch customer profile
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
+      const { data: profileData, error: profileError } = await (supabase as any)
+      .from("profiles")
         .select("id, full_name, avatar_url")
-        .eq("id", customerId)
+        .eq("id", customerId as string)
         .abortSignal(signal)
-        .single();
+        .single() as any as {
+          data: {
+            id: string;
+            full_name: string | null;
+            avatar_url: string | null;
+          } | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted) {
         if (profileData) {
@@ -146,14 +153,25 @@ function ProviderMessagesPageContent() {
       }
 
       // Fetch messages where user is either sender or receiver
-      const { data, error: fetchError } = await supabase
-        .from("messages")
+      const { data, error: fetchError } = await (supabase as any)
+      .from("messages")
         .select("*")
         .or(
           `and(sender_id.eq.${user?.id},receiver_id.eq.${customerId}),and(sender_id.eq.${customerId},receiver_id.eq.${user?.id})`
         )
         .order("created_at", { ascending: true })
-        .abortSignal(signal);
+        .abortSignal(signal) as any as {
+          data: Array<{
+            id: string;
+            sender_id: string;
+            receiver_id: string;
+            message: string;
+            read: boolean;
+            expires_at: string;
+            created_at: string;
+          }> | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted) {
         if (fetchError) {
@@ -166,7 +184,7 @@ function ProviderMessagesPageContent() {
             const expiresAt = new Date(msg.expires_at);
             return expiresAt > now;
           });
-          setMessages(validMessages);
+          setMessages(validMessages as Message[]);
 
           // Mark received messages as read
           const unreadIds = validMessages
@@ -174,9 +192,9 @@ function ProviderMessagesPageContent() {
             .map((msg) => msg.id);
 
           if (unreadIds.length > 0) {
-            await supabase
-              .from("messages")
-              .update({ read: true })
+            await (supabase as any)
+      .from("messages")
+              .update({ read: true } as any)
               .in("id", unreadIds);
           }
         }
@@ -202,17 +220,17 @@ function ProviderMessagesPageContent() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
-      const { data, error: sendError } = await supabase
-        .from("messages")
+      const { data, error: sendError } = await (supabase as any)
+      .from("messages")
         .insert({
           sender_id: user.id,
           receiver_id: customerId,
           message: newMessage.trim(),
           read: false,
           expires_at: expiresAt.toISOString(),
-        })
+        } as any)
         .select()
-        .single();
+        .single() as any as { data: Message | null; error: any };
 
       if (sendError) throw sendError;
 

@@ -16,8 +16,8 @@ export default function AdminUsersPage() {
   useEffect(() => {
     async function fetchUsers() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from("profiles")
+      const { data } = await (supabase as any)
+      .from("profiles")
         .select("*")
         .eq("is_admin", false)
         .order("created_at", { ascending: false });

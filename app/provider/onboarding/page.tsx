@@ -255,8 +255,8 @@ function ProviderOnboardingContent() {
         : null;
 
       // 1. Create provider profile
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
+      const { data: providerData, error: providerError } = await (supabase as any)
+      .from("providers")
         .insert({
           user_id: user.id,
           business_name: formData.businessName,
@@ -266,20 +266,21 @@ function ProviderOnboardingContent() {
           active: true,
           hourly_rate: 35.0,
           promo_expires_at: promoExpiresAt,
-        })
+        } as any)
         .select()
-        .single();
+        .single() as any as { data: { id: string } | null; error: any };
 
       if (providerError) throw providerError;
+      if (!providerData) throw new Error("Failed to create provider");
 
       // 2. Mark promo code as used
       if (promoValidated && promoCode) {
-        await supabase
-          .from("promo_codes")
+        await (supabase
+          .from("promo_codes") as any)
           .update({
             used_by_user_id: user.id,
             used_at: new Date().toISOString(),
-          })
+          } as any)
           .eq("code", promoCode.toUpperCase());
       }
 
@@ -289,7 +290,7 @@ function ProviderOnboardingContent() {
         location: formData.location,
         user_type: "provider",
         onboarding_completed: true, // CRITICAL: This prevents redirect loop
-      });
+      } as any);
 
       // 4. Save categories
       if (selectedCategories.length > 0) {
@@ -299,7 +300,7 @@ function ProviderOnboardingContent() {
           status: "active",
         }));
 
-        await supabase.from("provider_categories").insert(categoryRecords);
+        await (supabase as any).from("provider_categories").insert(categoryRecords as any);
       }
 
       // 5. Save specialties
@@ -316,7 +317,7 @@ function ProviderOnboardingContent() {
       });
 
       if (specialtyRecords.length > 0) {
-        await supabase.from("provider_specialties").insert(specialtyRecords);
+        await (supabase as any).from("provider_specialties").insert(specialtyRecords as any);
       }
 
       // 6. Upload portfolio images
@@ -353,7 +354,7 @@ function ProviderOnboardingContent() {
         }
 
         if (photoRecords.length > 0) {
-          await supabase.from("provider_photos").insert(photoRecords);
+          await (supabase as any).from("provider_photos").insert(photoRecords as any);
         }
       }
 
@@ -362,9 +363,9 @@ function ProviderOnboardingContent() {
         tier === "pro" &&
         (formData.nationalIdFront || formData.nationalIdBack)
       ) {
-        await supabase
-          .from("providers")
-          .update({ id_verification_status: "pending" })
+        await (supabase
+          .from("providers") as any)
+          .update({ id_verification_status: "pending" } as any)
           .eq("id", providerData.id);
       }
 

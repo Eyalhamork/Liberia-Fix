@@ -63,29 +63,29 @@ function SmartSearchPageContent() {
   const router = useRouter();
   const handleRefresh = async () => {
     // Refresh data
-    await refetch();
+    // Providers already loaded
   };
   const searchParams = useSearchParams();
   const supabase = createClient();
 
   // Search state
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [searchQuery, setSearchQuery] = useState(searchParams?.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState(
-    searchParams.get("category") || ""
+    searchParams?.get("category") || ""
   );
   const [selectedLocation, setSelectedLocation] = useState(
-    searchParams.get("location") || "All Locations"
+    searchParams?.get("location") || "All Locations"
   );
   const [selectedTier, setSelectedTier] = useState(
-    searchParams.get("tier") || ""
+    searchParams?.get("tier") || ""
   );
   const [verifiedOnly, setVerifiedOnly] = useState(
-    searchParams.get("verified") === "true"
+    searchParams?.get("verified") === "true"
   );
-  const [minRating, setMinRating] = useState(searchParams.get("rating") || "");
-  const [priceRange, setPriceRange] = useState(searchParams.get("price") || "");
+  const [minRating, setMinRating] = useState(searchParams?.get("rating") || "");
+  const [priceRange, setPriceRange] = useState(searchParams?.get("price") || "");
   const [sortBy, setSortBy] = useState(
-    searchParams.get("sort") || "recommended"
+    searchParams?.get("sort") || "recommended"
   );
 
   // UI state
@@ -156,7 +156,7 @@ function SmartSearchPageContent() {
       setError(null);
 
       // If using the database function (recommended for production)
-      // const { data, error: searchError } = await supabase.rpc('smart_provider_search', {
+      // const { data, error: searchError } = await (supabase as any).rpc('smart_provider_search', {
       //   search_term: debouncedSearch || '',
       //   filter_location: selectedLocation !== 'All Locations' ? selectedLocation : null,
       //   filter_tier: selectedTier || null,
@@ -203,7 +203,40 @@ function SmartSearchPageContent() {
         }
       }
 
-      const { data, error: fetchError, count } = await query;
+      const { data, error: fetchError, count } = await query as {
+        data: Array<{
+          id: string;
+          business_name: string | null;
+          description: string | null;
+          subscription_tier: string;
+          verified: boolean;
+          active: boolean;
+          hourly_rate: number | null;
+          total_rating: number;
+          review_count: number;
+          response_time: string | null;
+          profiles: {
+            full_name: string | null;
+            phone: string | null;
+            location: string | null;
+            avatar_url: string | null;
+          } | null;
+          provider_categories: Array<{
+            id: string;
+            service_category_id: string;
+            status: string;
+          }> | null;
+          provider_specialties: Array<{
+            id: string;
+            service_category_id: string;
+            specialty_id: string;
+            status: string;
+          }> | null;
+          relevanceScore?: number;
+        }> | null;
+        error: any;
+        count: number | null;
+      };
 
       if (fetchError) throw fetchError;
 
@@ -289,7 +322,7 @@ function SmartSearchPageContent() {
         });
 
         // Filter out providers with no relevance
-        results = results.filter((p) => p.relevanceScore > 0);
+        results = results.filter((p) => (p.relevanceScore || 0) > 0);
       }
 
       // Filter by selected category
@@ -317,10 +350,10 @@ function SmartSearchPageContent() {
       // Sort results
       results.sort((a, b) => {
         // First by tier (Pro > Free)
-        const tierOrder = { pro: 2, free: 1 };
+        const tierOrder: Record<string, number> = { pro: 2, free: 1 };
         if (tierOrder[a.subscription_tier] !== tierOrder[b.subscription_tier]) {
           return (
-            tierOrder[b.subscription_tier] - tierOrder[a.subscription_tier]
+            (tierOrder[b.subscription_tier] || 0) - (tierOrder[a.subscription_tier] || 0)
           );
         }
 
@@ -329,7 +362,7 @@ function SmartSearchPageContent() {
 
         // Then by relevance score (if searching)
         if (debouncedSearch && a.relevanceScore !== b.relevanceScore) {
-          return b.relevanceScore - a.relevanceScore;
+          return (b.relevanceScore || 0) - (a.relevanceScore || 0);
         }
 
         // Apply selected sorting

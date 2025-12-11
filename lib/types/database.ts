@@ -40,6 +40,7 @@ export interface Database {
           details?: Json | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       booking_notifications: {
         Row: {
@@ -75,6 +76,7 @@ export interface Database {
           read_at?: string | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       bookings: {
         Row: {
@@ -94,7 +96,7 @@ export interface Database {
           wallet_transaction_id: string | null;
         };
         Insert: {
-          id: string;
+          id?: string;
           customer_id?: string | null;
           provider_id?: string | null;
           booking_fee?: number | null;
@@ -125,6 +127,7 @@ export interface Database {
           paid_with_wallet?: boolean | null;
           wallet_transaction_id?: string | null;
         };
+        Relationships: [];
       };
       content_reports: {
         Row: {
@@ -169,6 +172,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       custom_request_views: {
         Row: {
@@ -195,6 +199,7 @@ export interface Database {
           viewed_at?: string | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       customer_memberships: {
         Row: {
@@ -233,6 +238,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       fraud_alerts: {
         Row: {
@@ -277,6 +283,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       messages: {
         Row: {
@@ -312,6 +319,7 @@ export interface Database {
           created_at?: string | null;
           expires_at?: string | null;
         };
+        Relationships: [];
       };
       notification_logs: {
         Row: {
@@ -344,6 +352,7 @@ export interface Database {
           metadata?: Json | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       notification_preferences: {
         Row: {
@@ -376,6 +385,43 @@ export interface Database {
           quiet_hours_start?: string | null;
           quiet_hours_end?: string | null;
         };
+        Relationships: [];
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          title: string;
+          message: string;
+          data: Json | null;
+          read: boolean | null;
+          read_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          title: string;
+          message: string;
+          data?: Json | null;
+          read?: boolean | null;
+          read_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          message?: string;
+          data?: Json | null;
+          read?: boolean | null;
+          read_at?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
       };
       profiles: {
         Row: {
@@ -426,6 +472,7 @@ export interface Database {
           blocked_at?: string | null;
           wallet_balance?: number | null;
         };
+        Relationships: [];
       };
       providers: {
         Row: {
@@ -536,6 +583,7 @@ export interface Database {
           profile_views?: number | null;
           last_upgrade_prompt?: string | null;
         };
+        Relationships: [];
       };
       provider_photos: {
         Row: {
@@ -565,6 +613,7 @@ export interface Database {
           order_index?: number;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       provider_services: {
         Row: {
@@ -591,6 +640,7 @@ export interface Database {
           price?: number | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       provider_subscriptions: {
         Row: {
@@ -626,6 +676,7 @@ export interface Database {
           created_at?: string | null;
           auto_renew?: boolean | null;
         };
+        Relationships: [];
       };
       reviews: {
         Row: {
@@ -685,6 +736,7 @@ export interface Database {
           professionalism_rating?: number | null;
           value_rating?: number | null;
         };
+        Relationships: [];
       };
       service_categories: {
         Row: {
@@ -723,6 +775,7 @@ export interface Database {
           monthly_searches?: number | null;
           display_order?: number | null;
         };
+        Relationships: [];
       };
       service_requests: {
         Row: {
@@ -809,6 +862,7 @@ export interface Database {
           bids_count?: number | null;
           service_category_id?: string | null;
         };
+        Relationships: [];
       };
       service_request_bids: {
         Row: {
@@ -862,6 +916,7 @@ export interface Database {
           availability?: string | null;
           estimated_duration?: string | null;
         };
+        Relationships: [];
       };
       transactions: {
         Row: {
@@ -909,6 +964,7 @@ export interface Database {
           related_membership_id?: string | null;
           related_service_request_id?: string | null;
         };
+        Relationships: [];
       };
       disputes: {
         Row: {
@@ -953,6 +1009,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       verification_requests: {
         Row: {
@@ -997,6 +1054,7 @@ export interface Database {
           reviewed_by?: string | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       wallet_transactions: {
         Row: {
@@ -1041,6 +1099,7 @@ export interface Database {
           metadata?: Json | null;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       push_subscriptions: {
         Row: {
@@ -1067,6 +1126,7 @@ export interface Database {
           auth?: string;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       promotional_codes: {
         Row: {
@@ -1102,6 +1162,7 @@ export interface Database {
           active?: boolean;
           created_at?: string | null;
         };
+        Relationships: [];
       };
       user_wallets: {
         Row: {
@@ -1125,6 +1186,7 @@ export interface Database {
           created_at?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
     };
     Views: {
@@ -1139,7 +1201,56 @@ export interface Database {
       };
     };
     Functions: {
-      [_ in never]: never;
+      increment_request_views: {
+        Args: { request_id: string };
+        Returns: void;
+      };
+      increment_provider_bid_count: {
+        Args: { provider_id: string };
+        Returns: void;
+      };
+      increment_bid_count: {
+        Args: { request_id: string };
+        Returns: void;
+      };
+      add_wallet_credits: {
+        Args: {
+          p_user_id: string;
+          p_amount: number;
+          p_credits: number;
+          p_description: string;
+          p_reference_id?: string;
+          p_type?: string;
+          p_payment_transaction_id?: string;
+          p_metadata?: Record<string, unknown>;
+        };
+        Returns: string;
+      };
+      deduct_wallet_credits: {
+        Args: {
+          p_user_id: string;
+          p_credits: number;
+          p_description: string;
+          p_reference_id?: string;
+        };
+        Returns: string;
+      };
+      approve_verification: {
+        Args: {
+          p_verification_id: string;
+          p_admin_id: string;
+        };
+        Returns: boolean;
+      };
+      reject_verification: {
+        Args: {
+          p_verification_id: string;
+          p_admin_id: string;
+          p_reason: string;
+          p_notes?: string | null;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -1174,11 +1285,13 @@ export type ServiceRequest = Database["public"]["Tables"]["service_requests"]["R
 export type ServiceRequestInsert = Database["public"]["Tables"]["service_requests"]["Insert"];
 export type ServiceRequestUpdate = Database["public"]["Tables"]["service_requests"]["Update"];
 
-export type ServiceRequestResponse = Database["public"]["Tables"]["service_request_responses"]["Row"];
+// Note: service_request_responses doesn't exist in schema, using service_request_bids instead
+export type ServiceRequestResponse = Database["public"]["Tables"]["service_request_bids"]["Row"];
 export type ServiceRequestBid = Database["public"]["Tables"]["service_request_bids"]["Row"];
 export type ServiceRequestBidInsert = Database["public"]["Tables"]["service_request_bids"]["Insert"];
 export type Message = Database["public"]["Tables"]["messages"]["Row"];
 export type BookingNotification = Database["public"]["Tables"]["booking_notifications"]["Row"];
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type Dispute = Database["public"]["Tables"]["disputes"]["Row"];
 export type VerificationRequest = Database["public"]["Tables"]["verification_requests"]["Row"];
 export type WalletTransaction = Database["public"]["Tables"]["wallet_transactions"]["Row"];

@@ -20,8 +20,8 @@ export async function POST(request: Request) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   // Create transaction record
-  const { data, error } = await supabase
-    .from("transactions")
+  const { data, error } = await (supabase as any)
+      .from("transactions")
     .insert({
       user_id: user.id,
       type,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   // If it's a subscription payment, update provider subscription
   if (type === "subscription" && metadata?.provider_id && metadata?.tier) {
-    await supabase.from("subscriptions").insert({
+    await (supabase as any).from("subscriptions").insert({
       provider_id: metadata.provider_id,
       tier: metadata.tier,
       status: "active",
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     });
 
     // Update provider tier
-    await supabase
+    await (supabase as any)
       .from("providers")
       .update({ subscription_tier: metadata.tier })
       .eq("id", metadata.provider_id);

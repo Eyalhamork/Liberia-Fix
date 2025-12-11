@@ -5,7 +5,7 @@ import { notificationService } from "@/lib/services/notification-service";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get request body (optional custom data)
-    let customData = {};
+    let customData: Record<string, any> = {};
     try {
       customData = await request.json();
     } catch {

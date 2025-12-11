@@ -47,23 +47,23 @@ function ProviderPortfolioContent() {
   const fetchPortfolio = async () => {
     setLoading(true);
 
-    const { data: providerData } = await supabase
+    const { data: providerData } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null; error: any };
 
     if (!providerData) {
       setLoading(false);
       return;
     }
 
-    const { data: portfolioData } = await supabase
+    const { data: portfolioData } = await (supabase as any)
       .from("provider_photos")
       .select("*")
       .eq("provider_id", providerData.id)
       .eq("status", "active")
-      .order("display_order", { ascending: true });
+      .order("display_order", { ascending: true }) as { data: any[] | null; error: any };
 
     if (portfolioData) {
       setPortfolioItems(portfolioData);
@@ -89,11 +89,11 @@ function ProviderPortfolioContent() {
     setUploading(true);
 
     try {
-      const { data: providerData } = await supabase
-        .from("providers")
+      const { data: providerData } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as { data: { id: string } | null; error: any };
 
       if (!providerData) {
         alert("Provider profile not found");
@@ -120,12 +120,12 @@ function ProviderPortfolioContent() {
           .getPublicUrl(fileName);
 
         // Save to database
-        await supabase.from("provider_photos").insert({
+        await (supabase.from("provider_photos") as any).insert({
           provider_id: providerData.id,
           photo_url: urlData.publicUrl,
           status: "active",
           display_order: portfolioItems.length,
-        });
+        } as any);
       }
 
       // Refresh portfolio and tier status
@@ -144,9 +144,8 @@ function ProviderPortfolioContent() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this photo?")) return;
 
-    const { error } = await supabase
-      .from("provider_photos")
-      .update({ status: "deleted" })
+    const { error } = await (supabase.from("provider_photos") as any)
+      .update({ status: "deleted" } as any)
       .eq("id", id);
 
     if (!error) {

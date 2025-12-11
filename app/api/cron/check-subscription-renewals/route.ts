@@ -11,17 +11,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = await createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = await createClient();
 
   const now = new Date();
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   const in6Days = new Date(now.getTime() + 6 * 24 * 60 * 60 * 1000);
 
   // Find subscriptions expiring in 7 days
-  const { data: expiringSubscriptions, error } = await supabase
+  const { data: expiringSubscriptions, error } = await (supabase as any)
     .from("provider_subscriptions")
     .select(
       `
@@ -53,7 +50,7 @@ export async function GET(request: Request) {
   for (const subscription of expiringSubscriptions || []) {
     try {
       // Check if we already sent this notification
-      const { data: existingNotif } = await supabase
+      const { data: existingNotif } = await (supabase as any)
         .from("notifications")
         .select("id")
         .eq("user_id", subscription.providers.user_id)

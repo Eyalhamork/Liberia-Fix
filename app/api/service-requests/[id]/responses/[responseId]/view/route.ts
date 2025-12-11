@@ -20,8 +20,8 @@ export async function POST(
   const { id: requestId, responseId } = params;
 
   // Verify service request belongs to user (customer)
-  const { data: serviceRequest, error: requestError } = await supabase
-    .from("service_requests")
+  const { data: serviceRequest, error: requestError } = await (supabase as any)
+      .from("service_requests")
     .select("*, profiles:customer_id (full_name)")
     .eq("id", requestId)
     .eq("customer_id", user.id)
@@ -35,8 +35,8 @@ export async function POST(
   }
 
   // Get the bid with provider details
-  const { data: bid, error: bidError } = await supabase
-    .from("service_request_bids")
+  const { data: bid, error: bidError } = await (supabase as any)
+      .from("service_request_bids")
     .select(
       `
       *,
@@ -60,8 +60,8 @@ export async function POST(
   const alreadyViewed = bid.viewed_by_customer;
 
   // Mark bid as viewed
-  const { error: updateError } = await supabase
-    .from("service_request_bids")
+  const { error: updateError } = await (supabase as any)
+      .from("service_request_bids")
     .update({
       viewed_by_customer: true,
       viewed_at: new Date().toISOString(),

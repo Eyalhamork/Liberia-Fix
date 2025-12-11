@@ -39,8 +39,8 @@ export default function ServiceRequestsPage() {
   const fetchServiceRequests = async () => {
     try {
       // Fetch only PAID and ACTIVE service requests
-      const { data, error } = await supabase
-        .from("service_requests")
+      const { data, error } = await (supabase as any)
+      .from("service_requests")
         .select("*")
         .eq("payment_status", "completed")
         .eq("status", "active")

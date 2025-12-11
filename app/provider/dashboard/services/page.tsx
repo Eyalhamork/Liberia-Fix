@@ -56,25 +56,32 @@ function ProviderServicesManagerContent() {
   };
 
   const fetchTierStatus = async () => {
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id, user_id, subscription_tier, promo_expires_at")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as {
+        data: {
+          id: string;
+          user_id: string;
+          subscription_tier: string;
+          promo_expires_at: string | null;
+        } | null;
+      };
 
     if (provider) {
       const promoActive =
         provider.promo_expires_at &&
         new Date(provider.promo_expires_at) > new Date();
 
-      const { count: catCount } = await supabase
-        .from("provider_categories")
+      const { count: catCount } = await (supabase as any)
+      .from("provider_categories")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
-      const { count: specCount } = await supabase
-        .from("provider_specialties")
+      const { count: specCount } = await (supabase as any)
+      .from("provider_specialties")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
@@ -91,55 +98,55 @@ function ProviderServicesManagerContent() {
   };
 
   const fetchCategories = async () => {
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null; error: any };
 
     if (provider) {
-      const { data } = await supabase
-        .from("provider_categories")
+      const { data } = await (supabase as any)
+      .from("provider_categories")
         .select("*")
         .eq("provider_id", provider.id)
-        .order("created_at");
+        .order("created_at") as { data: any[] | null; error: any };
 
       setCategories(data || []);
     }
   };
 
   const fetchSpecialties = async () => {
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null; error: any };
 
     if (provider) {
-      const { data } = await supabase
-        .from("provider_specialties")
+      const { data } = await (supabase as any)
+      .from("provider_specialties")
         .select("*")
         .eq("provider_id", provider.id)
-        .order("created_at");
+        .order("created_at") as { data: any[] | null; error: any };
 
       setSpecialties(data || []);
     }
   };
 
   const addCategory = async (categoryId: string) => {
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null; error: any };
 
     if (!provider) return;
 
-    const { error } = await supabase.from("provider_categories").insert({
+    const { error } = await (supabase.from("provider_categories") as any).insert({
       provider_id: provider.id,
       service_category_id: categoryId,
       status: "active",
-    });
+    } as any);
 
     if (error) {
       alert(error.message);
@@ -157,7 +164,7 @@ function ProviderServicesManagerContent() {
     )
       return;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("provider_categories")
       .delete()
       .eq("id", categoryId);
@@ -170,20 +177,20 @@ function ProviderServicesManagerContent() {
   };
 
   const addSpecialty = async (categoryId: string, specialtyId: string) => {
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null; error: any };
 
     if (!provider) return;
 
-    const { error } = await supabase.from("provider_specialties").insert({
+    const { error } = await (supabase.from("provider_specialties") as any).insert({
       provider_id: provider.id,
       service_category_id: categoryId,
       specialty_id: specialtyId,
       status: "active",
-    });
+    } as any);
 
     if (error) {
       alert(error.message);
@@ -195,7 +202,7 @@ function ProviderServicesManagerContent() {
   const removeSpecialty = async (specialtyId: string) => {
     if (!confirm("Remove this specialty?")) return;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("provider_specialties")
       .delete()
       .eq("id", specialtyId);

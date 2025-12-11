@@ -8,6 +8,7 @@ import {
   getBookingPaymentOptions,
 } from "@/lib/constants/wallet";
 import { randomUUID } from "crypto";
+import type { Booking, Profile, Provider, CustomerMembership } from "@/lib/types/database";
 
 export async function GET(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -20,16 +21,16 @@ export async function GET(request: Request) {
   }
 
   // Get user's bookings (as customer or provider)
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: profile } = await (supabase as any)
+      .from("profiles")
     .select("user_type")
     .eq("id", user.id)
-    .single();
+    .single() as { data: { user_type: string | null } | null };
 
   let query;
   if (profile?.user_type === "provider") {
     // Get provider's bookings
-    const { data: provider } = await supabase
+    const { data: provider } = await (supabase as any)
       .from("providers")
       .select("id")
       .eq("user_id", user.id)
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
           service_description
         `
         )
-        .eq("provider_id", provider.id)
+        .eq("provider_id", (provider as { id: string }).id)
         .eq("payment_status", "completed");
     }
   } else {
@@ -65,15 +66,15 @@ export async function GET(request: Request) {
       .eq("payment_status", "completed");
   }
 
-  const { data, error } = await query?.order("created_at", {
+  const result = await query?.order("created_at", {
     ascending: false,
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (result?.error) {
+    return NextResponse.json({ error: result.error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ bookings: data || [] });
+  return NextResponse.json({ bookings: result?.data || [] });
 }
 
 export async function POST(request: Request) {
@@ -90,22 +91,22 @@ export async function POST(request: Request) {
   const { provider_id, payment_method, service_description } = body;
 
   // Get provider details for notifications
-  const { data: provider } = await supabase
-    .from("providers")
+  const { data: provider } = await (supabase as any)
+      .from("providers")
     .select("business_name, user_id, subscription_tier")
     .eq("id", provider_id)
-    .single();
+    .single() as { data: { business_name: string | null; user_id: string | null; subscription_tier: string | null } | null };
 
   if (!provider) {
     return NextResponse.json({ error: "Provider not found" }, { status: 404 });
   }
 
   // Get customer details
-  const { data: customer } = await supabase
-    .from("profiles")
+  const { data: customer } = await (supabase as any)
+      .from("profiles")
     .select("full_name, wallet_balance")
     .eq("id", user.id)
-    .single();
+    .single() as { data: { full_name: string | null; wallet_balance: number | null } | null };
 
   if (!customer) {
     return NextResponse.json(
@@ -122,8 +123,8 @@ export async function POST(request: Request) {
   // 3. Require direct payment
 
   // Check if customer has active unlimited membership
-  const { data: membership } = await supabase
-    .from("customer_memberships")
+  const { data: membership } = await (supabase as any)
+      .from("customer_memberships")
     .select("*")
     .eq("customer_id", user.id)
     .eq("status", "active")
@@ -139,7 +140,7 @@ export async function POST(request: Request) {
   if (paymentOptions.has_membership) {
     console.log("💳 Membership covers booking - FREE");
 
-    const { data: booking, error: bookingError } = await supabase
+    const { data: booking, error: bookingError } = (await (supabase as any)
       .from("bookings")
       .insert({
         id: randomUUID(),
@@ -153,11 +154,11 @@ export async function POST(request: Request) {
         paid_with_wallet: false,
       })
       .select()
-      .single();
+      .single()) as { data: Booking | null; error: any };
 
-    if (bookingError) {
+    if (bookingError || !booking) {
       return NextResponse.json(
-        { error: bookingError.message },
+        { error: bookingError?.message || "Failed to create booking" },
         { status: 500 }
       );
     }
@@ -177,21 +178,23 @@ export async function POST(request: Request) {
         relatedEntityId: booking.id,
       });
 
-      await notificationService.createNotification({
-        userId: provider.user_id,
-        type:
-          provider.subscription_tier === "pro"
-            ? "new_booking_pro"
-            : "new_booking_free",
-        data: {
-          customer_name: customer.full_name || "A customer",
-          booking_id: booking.id,
-          service_description: service_description || "your service",
-        },
-        actionUrl: `/provider/bookings/${booking.id}`,
-        relatedEntityType: "booking",
-        relatedEntityId: booking.id,
-      });
+      if (provider.user_id) {
+        await notificationService.createNotification({
+          userId: provider.user_id,
+          type:
+            provider.subscription_tier === "pro"
+              ? "new_booking_pro"
+              : "new_booking_free",
+          data: {
+            customer_name: customer.full_name || "A customer",
+            booking_id: booking.id,
+            service_description: service_description || "your service",
+          },
+          actionUrl: `/provider/bookings/${booking.id}`,
+          relatedEntityType: "booking",
+          relatedEntityId: booking.id,
+        });
+      }
     } catch (error) {
       console.error("Failed to send notifications:", error);
     }
@@ -224,7 +227,7 @@ export async function POST(request: Request) {
     const bookingId = randomUUID();
 
     // Create booking record
-    const { data: booking, error: bookingError } = await supabase
+    const { data: booking, error: bookingError } = (await (supabase as any)
       .from("bookings")
       .insert({
         id: bookingId,
@@ -238,15 +241,15 @@ export async function POST(request: Request) {
         paid_with_wallet: true,
       })
       .select()
-      .single();
+      .single()) as { data: Booking | null; error: any };
 
-    if (bookingError) {
+    if (bookingError || !booking) {
       console.error("❌ Booking insert failed:", bookingError);
       return NextResponse.json(
         {
           success: false,
           error: "Failed to create booking",
-          details: bookingError.message,
+          details: bookingError?.message,
         },
         { status: 500 }
       );
@@ -254,7 +257,7 @@ export async function POST(request: Request) {
 
     // Deduct credits from wallet
     try {
-      const { data: walletTxId, error: deductError } = await supabase.rpc(
+      const { data: walletTxId, error: deductError } = (await (supabase as any).rpc(
         "deduct_wallet_credits",
         {
           p_user_id: user.id,
@@ -262,12 +265,12 @@ export async function POST(request: Request) {
           p_description: `Booking fee for ${provider.business_name}`,
           p_reference_id: booking.id,
         }
-      );
+      )) as { data: string | null; error: any };
 
       if (deductError) {
         console.error("❌ Wallet deduction error:", deductError);
         // Rollback: delete the booking
-        await supabase.from("bookings").delete().eq("id", booking.id);
+        await (supabase as any).from("bookings").delete().eq("id", booking.id);
         return NextResponse.json(
           {
             success: false,
@@ -285,8 +288,8 @@ export async function POST(request: Request) {
       );
 
       // Update booking
-      const { data: updatedBooking, error: updateError } = await supabase
-        .from("bookings")
+      const { data: updatedBooking, error: updateError } = (await (supabase as any)
+      .from("bookings")
         .update({
           payment_status: "completed",
           wallet_transaction_id: walletTxId,
@@ -294,18 +297,18 @@ export async function POST(request: Request) {
         })
         .eq("id", booking.id)
         .select()
-        .single();
+        .single()) as { data: Booking | null; error: any };
 
       if (updateError) {
         console.error("Booking update error:", updateError);
       }
 
       // Get updated wallet balance
-      const { data: updatedProfile } = await supabase
-        .from("profiles")
+      const { data: updatedProfile } = (await (supabase as any)
+      .from("profiles")
         .select("wallet_balance")
         .eq("id", user.id)
-        .single();
+        .single()) as { data: { wallet_balance: number | null } | null };
 
       // Send notifications
       try {
@@ -322,21 +325,23 @@ export async function POST(request: Request) {
           relatedEntityId: booking.id,
         });
 
-        await notificationService.createNotification({
-          userId: provider.user_id,
-          type:
-            provider.subscription_tier === "pro"
-              ? "new_booking_pro"
-              : "new_booking_free",
-          data: {
-            customer_name: customer.full_name || "A customer",
-            booking_id: booking.id,
-            service_description: service_description || "your service",
-          },
-          actionUrl: `/provider/bookings/${booking.id}`,
-          relatedEntityType: "booking",
-          relatedEntityId: booking.id,
-        });
+        if (provider.user_id) {
+          await notificationService.createNotification({
+            userId: provider.user_id,
+            type:
+              provider.subscription_tier === "pro"
+                ? "new_booking_pro"
+                : "new_booking_free",
+            data: {
+              customer_name: customer.full_name || "A customer",
+              booking_id: booking.id,
+              service_description: service_description || "your service",
+            },
+            actionUrl: `/provider/bookings/${booking.id}`,
+            relatedEntityType: "booking",
+            relatedEntityId: booking.id,
+          });
+        }
       } catch (error) {
         console.error("Failed to send notifications:", error);
       }
@@ -386,7 +391,7 @@ export async function POST(request: Request) {
     console.log("💳 Paying with MTN/Orange Money");
 
     // Create booking record
-    const { data: booking, error: bookingError } = await supabase
+    const { data: booking, error: bookingError } = (await (supabase as any)
       .from("bookings")
       .insert({
         id: randomUUID(),
@@ -400,7 +405,7 @@ export async function POST(request: Request) {
         paid_with_wallet: false,
       })
       .select()
-      .single();
+      .single()) as { data: Booking | null; error: any };
 
     if (bookingError) {
       return NextResponse.json(

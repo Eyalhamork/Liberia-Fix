@@ -20,8 +20,8 @@ export function NotificationBell() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from("notifications")
+      const { error } = await (supabase
+        .from("notifications") as any)
         .update({ read: true, read_at: new Date().toISOString() })
         .eq("user_id", user.id)
         .eq("read", false);

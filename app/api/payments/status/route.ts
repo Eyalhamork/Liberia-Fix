@@ -5,13 +5,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createMTNMoMoService } from "@/lib/services/mtn-momo.service";
 import { createPaymentService } from "@/lib/services/payment.service";
 
 export async function GET(request: NextRequest) {
   try {
     // Get authenticated user
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -33,11 +32,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify transaction belongs to user
-    const { data: transaction } = await supabase
+    const { data: transaction } = await (supabase as any)
       .from("payment_transactions")
       .select("user_id")
       .eq("reference_id", referenceId)
-      .single();
+      .single() as { data: { user_id: string } | null };
 
     if (!transaction || transaction.user_id !== user.id) {
       return NextResponse.json(
@@ -47,11 +46,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Initialize services
-    const mtnService = createMTNMoMoService();
-    const paymentService = createPaymentService(supabase, mtnService);
+    const paymentService = createPaymentService();
 
     // Check payment status
-    const result = await paymentService.checkPaymentStatus(referenceId);
+    const result = await paymentService.getPaymentStatus(referenceId);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

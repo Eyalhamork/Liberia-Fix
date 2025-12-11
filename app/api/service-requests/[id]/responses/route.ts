@@ -16,7 +16,7 @@ export async function GET(
   const requestId = params.id;
 
   // Get service request with bids
-  const { data: serviceRequest, error: requestError } = await supabase
+  const { data: serviceRequest, error: requestError } = await (supabase as any)
     .from("service_requests")
     .select(
       `
@@ -85,7 +85,7 @@ export async function POST(
   const { estimated_cost, estimated_duration, message } = body;
 
   // Verify user is a provider
-  const { data: provider, error: providerError } = await supabase
+  const { data: provider, error: providerError } = await (supabase as any)
     .from("providers")
     .select("*")
     .eq("user_id", user.id)
@@ -99,7 +99,7 @@ export async function POST(
   }
 
   // Get service request details
-  const { data: serviceRequest, error: requestError } = await supabase
+  const { data: serviceRequest, error: requestError } = await (supabase as any)
     .from("service_requests")
     .select("*, profiles:customer_id (full_name)")
     .eq("id", requestId)
@@ -121,7 +121,7 @@ export async function POST(
   }
 
   // Check if provider already responded
-  const { data: existingBid } = await supabase
+  const { data: existingBid } = await (supabase as any)
     .from("service_request_bids")
     .select("id")
     .eq("request_id", requestId)
@@ -140,7 +140,7 @@ export async function POST(
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    const { data: bidHistory } = await supabase
+    const { data: bidHistory } = await (supabase as any)
       .from("provider_bid_history")
       .select("bids_used")
       .eq("provider_id", provider.id)
@@ -161,7 +161,7 @@ export async function POST(
   }
 
   // Create bid
-  const { data: bid, error: createError } = await supabase
+  const { data: bid, error: createError } = await (supabase as any)
     .from("service_request_bids")
     .insert({
       request_id: requestId,
@@ -179,14 +179,14 @@ export async function POST(
   }
 
   // Update bid count on service request
-  await supabase.rpc("increment_bid_count", { request_id: requestId });
+  await (supabase as any).rpc("increment_bid_count", { request_id: requestId });
 
   // Update provider's bid history
   if (provider.subscription_tier === "free") {
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
 
-    await supabase
+    await (supabase as any)
       .from("provider_bid_history")
       .upsert({
         provider_id: provider.id,
@@ -200,7 +200,7 @@ export async function POST(
   }
 
   // Get updated bid count
-  const { count: bidCount } = await supabase
+  const { count: bidCount } = await (supabase as any)
     .from("service_request_bids")
     .select("*", { count: "exact", head: true })
     .eq("request_id", requestId);

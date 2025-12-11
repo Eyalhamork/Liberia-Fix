@@ -156,7 +156,7 @@ export function usePushSubscription() {
       console.log("[usePushSubscription] Step 6: Subscribing to push...");
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as any,
       });
       console.log(
         "[usePushSubscription] Push subscription created:",
@@ -170,7 +170,7 @@ export function usePushSubscription() {
       const {
         data: { user },
         error: userError,
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser() as any as { data: { user: any }; error: any };
       console.log("[usePushSubscription] User:", user ? user.id : "Not found");
       console.log("[usePushSubscription] User error:", userError);
 
@@ -216,12 +216,12 @@ export function usePushSubscription() {
         endpoint_length: subscriptionRecord.endpoint.length,
       });
 
-      const { data: insertedData, error: dbError } = await supabase
-        .from("notification_subscriptions")
-        .upsert(subscriptionRecord, {
+      const { data: insertedData, error: dbError } = await (supabase
+        .from("notification_subscriptions") as any)
+        .upsert(subscriptionRecord as any, {
           onConflict: "user_id,device_id",
         })
-        .select();
+        .select() as any as { data: any; error: any };
 
       console.log("[usePushSubscription] Database response:", {
         data: insertedData,
@@ -289,8 +289,8 @@ export function usePushSubscription() {
       } = await supabase.auth.getUser();
       if (user) {
         const deviceId = getDeviceId();
-        const { error } = await supabase
-          .from("notification_subscriptions")
+        const { error } = await (supabase as any)
+      .from("notification_subscriptions")
           .delete()
           .eq("user_id", user.id)
           .eq("device_id", deviceId);

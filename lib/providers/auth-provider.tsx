@@ -46,8 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string) => {
     try {
       console.log("[AuthProvider] Fetching profile for:", userId);
-      const { data, error } = await supabase
-        .from("profiles")
+      const { data, error } = await (supabase as any)
+      .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
@@ -59,10 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log(
         "[AuthProvider] ✅ Profile loaded successfully:",
-        data?.user_type
+        (data as any)?.user_type
       );
       console.log("[AuthProvider] Full profile data:", data); // ADD THIS
-      return data as Profile;
+      return data as any as Profile;
     } catch (error) {
       console.error("[AuthProvider] Profile fetch exception:", error);
       return null;
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
       console.log("[AuthProvider] Auth event:", event);
 
       if (event === "SIGNED_OUT") {
@@ -167,12 +167,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { data: null, error: "No user logged in" };
     }
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .update(updates)
+    const { data, error } = await (supabase
+      .from("profiles") as any)
+      .update(updates as any)
       .eq("id", user.id)
       .select()
-      .single();
+      .single() as any as { data: any; error: any };
 
     if (data) {
       setProfile(data as Profile);

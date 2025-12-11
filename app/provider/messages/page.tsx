@@ -102,10 +102,10 @@ function ProviderMessagesContent() {
   }, [user]);
 
   const fetchProviderData = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("providers")
       .select("subscription_tier")
-      .eq("user_id", user?.id)
+      .eq("user_id", user?.id as string)
       .single();
 
     if (data) {

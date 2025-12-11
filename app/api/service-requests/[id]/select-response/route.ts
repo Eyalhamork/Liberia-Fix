@@ -29,7 +29,7 @@ export async function POST(
   }
 
   // Verify service request belongs to user
-  const { data: serviceRequest, error: requestError } = await supabase
+  const { data: serviceRequest, error: requestError } = await (supabase as any)
     .from("service_requests")
     .select("*, profiles:customer_id (full_name)")
     .eq("id", requestId)
@@ -44,7 +44,7 @@ export async function POST(
   }
 
   // Get the bid with provider details
-  const { data: bid, error: bidError } = await supabase
+  const { data: bid, error: bidError } = await (supabase as any)
     .from("service_request_bids")
     .select(
       `
@@ -71,7 +71,7 @@ export async function POST(
   }
 
   // Check if request already has maximum selected providers (2)
-  const { count: selectedCount } = await supabase
+  const { count: selectedCount } = await (supabase as any)
     .from("service_request_bids")
     .select("*", { count: "exact", head: true })
     .eq("request_id", requestId)
@@ -85,7 +85,7 @@ export async function POST(
   }
 
   // Update bid status to selected
-  const { data: updatedBid, error: updateError } = await supabase
+  const { data: updatedBid, error: updateError } = await (supabase as any)
     .from("service_request_bids")
     .update({
       status: "selected",
@@ -101,7 +101,7 @@ export async function POST(
 
   // Update service request status to filled if this is the 2nd selection
   if (selectedCount && selectedCount === 1) {
-    await supabase
+    await (supabase as any)
       .from("service_requests")
       .update({
         status: "filled",

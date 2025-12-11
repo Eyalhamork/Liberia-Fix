@@ -67,11 +67,18 @@ function ProviderProfileSettingsContent() {
     setLoading(true);
 
     // Fetch provider info
-    const { data: providerData } = await supabase
+    const { data: providerData } = await (supabase as any)
       .from("providers")
       .select("*")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: {
+          business_name: string | null;
+          description: string | null;
+          hourly_rate: number | null;
+          available: boolean | null;
+          subscription_tier: "free" | "pro" | "elite";
+          business_hours: any;
+        } | null; error: any };
 
     if (providerData) {
       setFormData({
@@ -99,27 +106,27 @@ function ProviderProfileSettingsContent() {
 
     try {
       // Update profile (location, phone)
-      const { error: profileError } = await supabase
-        .from("profiles")
+      const { error: profileError } = await (supabase
+        .from("profiles") as any)
         .update({
           location: formData.location,
           phone: formData.phone,
-        })
-        .eq("id", user?.id);
+        } as any)
+        .eq("id", user?.id as string);
 
       if (profileError) throw profileError;
 
       // Update provider info
-      const { error: providerError } = await supabase
-        .from("providers")
+      const { error: providerError } = await (supabase
+        .from("providers") as any)
         .update({
           business_name: formData.business_name,
           description: formData.description,
           hourly_rate: parseFloat(formData.hourly_rate) || 0,
           available: formData.available,
           business_hours: businessHours,
-        })
-        .eq("user_id", user?.id);
+        } as any)
+        .eq("user_id", user?.id as string);
 
       if (providerError) throw providerError;
 
@@ -206,7 +213,7 @@ function ProviderProfileSettingsContent() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.push(`/search/providers/${user?.id}`)}
+                onClick={() => router.push(`/search/providers/${user?.id as string}`)}
                 className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all flex items-center gap-2"
               >
                 <Eye className="h-4 w-4" />

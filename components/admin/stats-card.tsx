@@ -9,8 +9,9 @@ interface StatsCardProps {
   trend?: {
     value: number;
     positive: boolean;
-  };
+  } | null;
   subtitle?: string;
+  variant?: "default" | "success" | "warning" | "error";
 }
 
 export default function StatsCard({

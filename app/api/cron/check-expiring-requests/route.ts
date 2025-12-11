@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   // Find active requests expiring in the next 24 hours
   // (but not yet notified - we'll track this with a flag)
-  const { data: expiringRequests, error } = await supabase
+  const { data: expiringRequests, error } = await (supabase as any)
     .from("service_requests")
     .select(
       `
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   // 🔔 BATCH 2 TRIGGER 8: Request Expiring (notify customer)
   for (const request of expiringRequests || []) {
     // Check if customer has already selected a provider
-    const { count: selectedCount } = await supabase
+    const { count: selectedCount } = await (supabase as any)
       .from("service_request_responses")
       .select("*", { count: "exact", head: true })
       .eq("service_request_id", request.id)
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     if (!selectedCount || selectedCount === 0) {
       try {
         // Check if we already sent this notification
-        const { data: existingNotif } = await supabase
+        const { data: existingNotif } = await (supabase as any)
           .from("notifications")
           .select("id")
           .eq("user_id", request.customer_id)
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
   }
 
   // Auto-expire requests that are past their expiration time
-  const { data: expiredRequests, error: expiredError } = await supabase
+  const { data: expiredRequests, error: expiredError } = await (supabase as any)
     .from("service_requests")
     .select("id")
     .eq("status", "active")
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
   if (!expiredError && expiredRequests && expiredRequests.length > 0) {
     const expiredIds = expiredRequests.map((r: any) => r.id);
 
-    await supabase
+    await (supabase as any)
       .from("service_requests")
       .update({
         status: "expired",

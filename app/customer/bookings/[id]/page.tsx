@@ -64,7 +64,8 @@ function BookingDetailContent() {
     isMountedRef.current = true;
     const abortController = new AbortController();
 
-    if (user && params.id) {
+    const bookingId = params?.id;
+    if (user && bookingId) {
       fetchBooking(abortController.signal);
     }
 
@@ -72,7 +73,7 @@ function BookingDetailContent() {
       isMountedRef.current = false;
       abortController.abort();
     };
-  }, [user?.id, params.id]);
+  }, [user?.id, params?.id]);
 
   const fetchBooking = async (signal: AbortSignal) => {
     try {
@@ -81,8 +82,13 @@ function BookingDetailContent() {
         setError(null);
       }
 
-      const { data, error: fetchError } = await supabase
-        .from("bookings")
+      const bookingId = params?.id;
+      if (!bookingId) {
+        throw new Error("Booking ID is required");
+      }
+
+      const { data, error: fetchError } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           id,
@@ -107,10 +113,10 @@ function BookingDetailContent() {
           )
         `
         )
-        .eq("id", params.id)
-        .eq("customer_id", user?.id)
-        .single()
-        .abortSignal(signal);
+        .eq("id", bookingId)
+        .eq("customer_id", user?.id as string)
+        .abortSignal(signal)
+        .single() as { data: Booking | null; error: any };
 
       if (isMountedRef.current && !signal.aborted) {
         if (fetchError) {

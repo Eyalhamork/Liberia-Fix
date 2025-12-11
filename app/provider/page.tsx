@@ -63,11 +63,11 @@ function ProviderPortfolioContent() {
   }, [user]);
 
   const fetchProviderData = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("providers")
       .select("subscription_tier")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { subscription_tier: "free" | "pro" | "elite" } | null };
 
     if (data) {
       setCurrentTier(data.subscription_tier || "free");
@@ -77,18 +77,18 @@ function ProviderPortfolioContent() {
   const fetchPortfolio = async () => {
     setLoading(true);
 
-    const { data: providerData } = await supabase
+    const { data: providerData } = await (supabase as any)
       .from("providers")
       .select("id")
-      .eq("user_id", user?.id)
-      .single();
+      .eq("user_id", user?.id as string)
+      .single() as { data: { id: string } | null };
 
     if (!providerData) {
       setLoading(false);
       return;
     }
 
-    const { data: portfolioData } = await supabase
+    const { data: portfolioData } = await (supabase as any)
       .from("portfolio")
       .select("*")
       .eq("provider_id", providerData.id)
@@ -130,11 +130,11 @@ function ProviderPortfolioContent() {
 
     try {
       // Get provider ID
-      const { data: providerData } = await supabase
-        .from("providers")
+      const { data: providerData } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as { data: { id: string } | null };
 
       if (!providerData) {
         alert("Provider not found");
@@ -161,11 +161,11 @@ function ProviderPortfolioContent() {
         .getPublicUrl(filePath);
 
       // Save to database
-      const { error: dbError } = await supabase.from("portfolio").insert({
+      const { error: dbError } = await (supabase as any).from("portfolio").insert({
         provider_id: providerData.id,
         image_url: urlData.publicUrl,
         caption: "",
-      });
+      } as any);
 
       if (dbError) {
         throw dbError;
@@ -193,8 +193,8 @@ function ProviderPortfolioContent() {
       await supabase.storage.from("provider-photos").remove([filePath]);
 
       // Delete from database
-      const { error } = await supabase
-        .from("portfolio")
+      const { error } = await (supabase as any)
+      .from("portfolio")
         .delete()
         .eq("id", item.id);
 

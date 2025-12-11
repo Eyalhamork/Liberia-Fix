@@ -29,8 +29,8 @@ export default async function AdminLayout({
   }
 
   // Check admin status
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: profile } = await (supabase as any)
+      .from("profiles")
     .select("is_admin, full_name, email, user_type")
     .eq("id", user.id)
     .single();

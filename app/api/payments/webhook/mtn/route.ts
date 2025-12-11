@@ -1,6 +1,7 @@
 // app/api/payments/webhook/mtn/route.ts - UPDATED WITH WALLET SUPPORT
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { createMTNMoMoService } from "@/lib/services/mtn-momo.service";
 import { notificationService } from "@/lib/services/notification-service";
 import { getCreditPackageById } from "@/lib/constants/wallet";
@@ -8,10 +9,10 @@ import { getCreditPackageById } from "@/lib/constants/wallet";
 export async function POST(request: NextRequest) {
   try {
     // Use service role client for webhook processing (no user auth)
-    const supabase = await createClient(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    ) as any;
 
     // Get webhook payload
     const payload = await request.json();
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
       "unknown";
 
     // Log webhook received
-    const { data: webhookLog } = await supabase
+    const { data: webhookLog } = await (supabase as any)
       .from("payment_webhooks")
       .insert({
         provider: "mtn_momo",
@@ -32,9 +33,9 @@ export async function POST(request: NextRequest) {
         headers: Object.fromEntries(request.headers.entries()),
         signature,
         ip_address: ipAddress,
-      })
+      } as any)
       .select()
-      .single();
+      .single() as any as { data: any | null };
 
     // Verify webhook signature
     const mtnService = createMTNMoMoService();
@@ -47,8 +48,8 @@ export async function POST(request: NextRequest) {
         webhookSecret
       );
 
-      await supabase
-        .from("payment_webhooks")
+      await (supabase as any)
+      .from("payment_webhooks")
         .update({ signature_verified: isValid })
         .eq("id", webhookLog?.id);
 
@@ -62,11 +63,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Process webhook
-    const { data: transaction } = await supabase
+    const { data: transaction } = await (supabase as any)
       .from("transactions")
       .select("*")
       .eq("external_transaction_id", payload.externalId)
-      .single();
+      .single() as any as { data: any | null };
 
     if (!transaction) {
       console.error("Transaction not found for webhook:", payload.externalId);
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
       updateData.error_code = payload.reason.code;
     }
 
-    const { data: updatedTransaction } = await supabase
+    const { data: updatedTransaction } = await (supabase as any)
       .from("transactions")
       .update(updateData)
       .eq("id", transaction.id)
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     // Mark webhook as processed
-    await supabase
+    await (supabase as any)
       .from("payment_webhooks")
       .update({
         processed: true,
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
         const totalCredits = creditPackage.credits + creditPackage.bonus;
 
         // Add credits to wallet using database function
-        const { data: walletTxId, error: walletError } = await supabase.rpc(
+        const { data: walletTxId, error: walletError } = await (supabase as any).rpc(
           "add_wallet_credits",
           {
             p_user_id: transaction.user_id,
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
                 amount: creditPackage.amount.toFixed(2),
               },
               actionUrl: "/customer/wallet",
-              priority: "normal",
+              priority: "low",
             });
           } catch (notifError) {
             console.error("Failed to send topup notification:", notifError);
@@ -205,8 +206,8 @@ export async function POST(request: NextRequest) {
       transaction.type === "provider_subscription" &&
       transaction.related_subscription_id
     ) {
-      const { data: subscription } = await supabase
-        .from("provider_subscriptions")
+      const { data: subscription } = await (supabase as any)
+      .from("provider_subscriptions")
         .select("*, providers:provider_id (user_id)")
         .eq("id", transaction.related_subscription_id)
         .single();
@@ -214,8 +215,8 @@ export async function POST(request: NextRequest) {
       if (subscription) {
         if (newStatus === "completed") {
           // Update subscription to active
-          await supabase
-            .from("provider_subscriptions")
+          await (supabase as any)
+      .from("provider_subscriptions")
             .update({
               status: "active",
               payment_status: "completed",
@@ -224,8 +225,8 @@ export async function POST(request: NextRequest) {
             .eq("id", subscription.id);
 
           // Upgrade provider tier
-          await supabase
-            .from("providers")
+          await (supabase as any)
+      .from("providers")
             .update({ subscription_tier: subscription.tier })
             .eq("id", subscription.provider_id);
 
@@ -255,8 +256,8 @@ export async function POST(request: NextRequest) {
           }
         } else {
           // Payment failed
-          await supabase
-            .from("provider_subscriptions")
+          await (supabase as any)
+      .from("provider_subscriptions")
             .update({
               status: "failed",
               payment_status: "failed",

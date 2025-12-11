@@ -230,7 +230,7 @@ export function CustomerOnboardingFlow() {
       localStorage.setItem("onboarding_completed", "true");
 
       // In production, save to database
-      // await supabase.from('customer_preferences').insert([preferences]);
+      // await (supabase as any).from('customer_preferences').insert([preferences]);
 
       // Redirect to dashboard
       router.push("/dashboard");

@@ -38,8 +38,8 @@ export function PushNotificationInitializer() {
 
       // Check if user has an active subscription already
       const supabase = createClient();
-      const { data: existingSubscription } = await supabase
-        .from("notification_subscriptions")
+      const { data: existingSubscription } = await (supabase as any)
+      .from("notification_subscriptions")
         .select("id")
         .eq("user_id", user.id)
         .eq("active", true)

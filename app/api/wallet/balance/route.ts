@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // OPTIMIZED: Only fetch wallet_balance field - no joins, no extra data
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await (supabase as any)
       .from("profiles")
       .select("wallet_balance")
       .eq("id", user.id)

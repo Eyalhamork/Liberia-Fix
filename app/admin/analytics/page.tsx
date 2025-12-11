@@ -37,39 +37,39 @@ export default function AdminAnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       // Fetch users count
-      const { count: usersCount } = await supabase
-        .from("profiles")
+      const { count: usersCount } = await (supabase as any)
+      .from("profiles")
         .select("*", { count: "exact", head: true });
 
-      const { count: customersCount } = await supabase
-        .from("profiles")
+      const { count: customersCount } = await (supabase as any)
+      .from("profiles")
         .select("*", { count: "exact", head: true })
         .eq("user_type", "customer");
 
-      const { count: providersCount } = await supabase
-        .from("providers")
+      const { count: providersCount } = await (supabase as any)
+      .from("providers")
         .select("*", { count: "exact", head: true });
 
       // Fetch bookings count
-      const { count: bookingsCount } = await supabase
-        .from("bookings")
+      const { count: bookingsCount } = await (supabase as any)
+      .from("bookings")
         .select("*", { count: "exact", head: true });
 
       // Fetch total revenue
-      const { data: transactions } = await supabase
-        .from("transactions")
+      const { data: transactions } = await (supabase as any)
+      .from("transactions")
         .select("amount")
-        .eq("status", "completed");
+        .eq("status", "completed") as { data: Array<{ amount: number }> | null };
 
       const totalRevenue =
         transactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0;
 
       // Fetch reviews
-      const { count: reviewsCount } = await supabase
-        .from("reviews")
+      const { count: reviewsCount } = await (supabase as any)
+      .from("reviews")
         .select("*", { count: "exact", head: true });
 
-      const { data: reviews } = await supabase.from("reviews").select("rating");
+      const { data: reviews } = await (supabase as any).from("reviews").select("rating") as { data: Array<{ rating: number }> | null };
 
       const avgRating =
         reviews && reviews.length > 0
@@ -78,8 +78,8 @@ export default function AdminAnalyticsPage() {
           : 0;
 
       // Fetch active service requests
-      const { count: activeRequests } = await supabase
-        .from("service_requests")
+      const { count: activeRequests } = await (supabase as any)
+      .from("service_requests")
         .select("*", { count: "exact", head: true })
         .eq("status", "active");
 

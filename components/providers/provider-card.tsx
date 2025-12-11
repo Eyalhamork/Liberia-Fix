@@ -13,7 +13,7 @@ interface ProviderCardProps {
     reviews: number;
     location: string;
     rate: string;
-    tier: "free" | "pro"; // Removed "elite"
+    tier: "free" | "pro" | "elite";
     image?: string;
     responseTime: string;
     description?: string;

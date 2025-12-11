@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { count, error } = await supabase
+    const { count, error } = await (supabase as any)
       .from("notifications")
       .select("*", { count: "exact", head: true })
       .eq("user_id", user.id)

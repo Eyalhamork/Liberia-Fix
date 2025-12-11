@@ -1,9 +1,12 @@
 // lib/supabase/server.ts - FIXED VERSION
 import { createServerClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "@/lib/types/database";
 
-export async function createClient() {
+export type TypedSupabaseClient = SupabaseClient<Database>;
+
+export async function createClient(): Promise<TypedSupabaseClient> {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(

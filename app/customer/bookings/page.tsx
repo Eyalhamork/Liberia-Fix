@@ -96,8 +96,8 @@ function BookingsContent() {
       }
 
       // Fetch all bookings (contact unlocks) for this customer
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from("bookings")
+      const { data: bookingsData, error: bookingsError } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           id,
@@ -122,23 +122,54 @@ function BookingsContent() {
           )
         `
         )
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .order("created_at", { ascending: false })
-        .abortSignal(signal);
+        .abortSignal(signal) as {
+          data: Array<{
+            id: string;
+            provider_id: string;
+            customer_id: string;
+            booking_fee: number | null;
+            payment_method: string;
+            payment_status: string;
+            transaction_id: string | null;
+            service_description: string | null;
+            booking_date: string;
+            booking_status: string;
+            created_at: string;
+            providers: {
+              id: string;
+              business_name: string;
+              hourly_rate: number;
+              total_rating: number;
+              review_count: number;
+              subscription_tier: string;
+              user_id: string;
+            } | null;
+          }> | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted) {
         if (bookingsError) throw bookingsError;
 
         // Fetch reviews for each booking
         const bookingsWithReviews = await Promise.all(
-          (bookingsData || []).map(async (booking) => {
-            const { data: reviewData } = await supabase
-              .from("reviews")
+          (bookingsData || []).map(async (booking: any) => {
+            const { data: reviewData } = await (supabase as any)
+      .from("reviews")
               .select("id, rating, comment, created_at")
-              .eq("customer_id", user?.id)
+              .eq("customer_id", user?.id as string)
               .eq("provider_id", booking.provider_id)
               .order("created_at", { ascending: false })
-              .abortSignal(signal);
+              .abortSignal(signal) as {
+                data: Array<{
+                  id: string;
+                  rating: number;
+                  comment: string;
+                  created_at: string;
+                }> | null;
+              };
 
             return {
               ...booking,
@@ -151,11 +182,11 @@ function BookingsContent() {
 
         // Calculate stats
         const completed = bookingsWithReviews.filter(
-          (b) => b.payment_status === "completed"
+          (b: any) => b.payment_status === "completed"
         ).length;
         const totalSpent = bookingsWithReviews
-          .filter((b) => b.payment_status === "completed")
-          .reduce((sum, b) => sum + (b.booking_fee || 0), 0);
+          .filter((b: any) => b.payment_status === "completed")
+          .reduce((sum: number, b: any) => sum + (b.booking_fee || 0), 0);
 
         setStats({
           total: bookingsWithReviews.length,
@@ -227,7 +258,7 @@ function BookingsContent() {
         <Header />
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="h-12 w-48 bg-gray-200 rounded-xl animate-pulse mb-8" />
-          <SkeletonBookingCard rows={5} />
+          <SkeletonBookingCard />
         </div>
       </div>
     );

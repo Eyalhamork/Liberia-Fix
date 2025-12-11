@@ -5,13 +5,12 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createMTNMoMoService } from "@/lib/services/mtn-momo.service";
 import { createPaymentService } from "@/lib/services/payment.service";
 import { SubscriptionService } from "@/lib/services/subscription.service";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from("profiles")
       .select("user_type")
       .eq("id", user.id)
@@ -35,10 +34,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const mtnService = createMTNMoMoService();
-    const paymentService = createPaymentService(supabase, mtnService);
+    const paymentService = createPaymentService();
     const subscriptionService = new SubscriptionService(
-      supabase,
+      supabase as any,
       paymentService
     );
 

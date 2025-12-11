@@ -94,6 +94,7 @@ export interface CreateNotificationParams {
   relatedEntityId?: string;
   scheduledFor?: Date;
   expiresAt?: Date;
+  priority?: NotificationPriority;
 }
 
 export interface SendNotificationResult {

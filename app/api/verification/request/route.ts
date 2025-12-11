@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get provider profile
-    const { data: provider, error: providerError } = await supabase
+    const { data: provider, error: providerError } = await (supabase as any)
       .from("providers")
       .select("id, business_name, verified")
       .eq("user_id", user.id)
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create verification request
-    const { data: verification, error: insertError } = await supabase
+    const { data: verification, error: insertError } = await (supabase as any)
       .from("provider_verifications")
       .insert({
         provider_id: provider.id,
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get provider profile
-    const { data: provider, error: providerError } = await supabase
+    const { data: provider, error: providerError } = await (supabase as any)
       .from("providers")
       .select("id, verified")
       .eq("user_id", user.id)
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get verification requests
-    const { data: verifications, error: fetchError } = await supabase
+    const { data: verifications, error: fetchError } = await (supabase as any)
       .from("provider_verifications")
       .select("*")
       .eq("provider_id", provider.id)

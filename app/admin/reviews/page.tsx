@@ -27,8 +27,8 @@ export default function AdminReviewsPage() {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
-        .from("reviews")
+      const { data, error } = await (supabase as any)
+      .from("reviews")
         .select(
           `
           *,
@@ -196,7 +196,7 @@ export default function AdminReviewsPage() {
           value={flaggedReviews}
           icon={AlertCircle}
           trend={null}
-          variant="danger"
+          variant="error"
         />
       </div>
 

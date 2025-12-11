@@ -107,7 +107,7 @@ export default function NotificationsPage() {
         query = query.eq("category", filter);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query as { data: Notification[] | null; error: any };
 
       if (error) {
         console.error("Error fetching notifications:", error);
@@ -127,11 +127,11 @@ export default function NotificationsPage() {
     if (!user) return;
 
     try {
-      const { count, error } = await supabase
-        .from("notifications")
+      const { count, error } = await (supabase as any)
+      .from("notifications")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .eq("read", false);
+        .eq("read", false) as { count: number | null; error: any };
 
       if (!error) {
         setUnreadCount(count || 0);
@@ -143,9 +143,9 @@ export default function NotificationsPage() {
 
   async function markAsRead(notificationId: string, actionUrl: string | null) {
     try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true, read_at: new Date().toISOString() })
+      const { error } = await (supabase
+        .from("notifications") as any)
+        .update({ read: true, read_at: new Date().toISOString() } as any)
         .eq("id", notificationId);
 
       if (error) {
@@ -165,9 +165,9 @@ export default function NotificationsPage() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from("notifications")
-        .update({ read: true, read_at: new Date().toISOString() })
+      const { error } = await (supabase
+        .from("notifications") as any)
+        .update({ read: true, read_at: new Date().toISOString() } as any)
         .eq("user_id", user.id)
         .eq("read", false);
 

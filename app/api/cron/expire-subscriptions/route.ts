@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     // Get all active subscriptions that have expired
     const now = new Date().toISOString();
-    const { data: expiredSubscriptions, error: fetchError } = await supabase
+    const { data: expiredSubscriptions, error: fetchError } = await (supabase as any)
       .from("provider_subscriptions")
       .select("*, providers!inner(id, user_id, subscription_tier)")
       .eq("status", "active")
@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
         console.log(`⏳ [CRON] Processing subscription ${subscription.id}`);
 
         // Mark subscription as expired
-        const { error: updateSubError } = await supabase
-          .from("provider_subscriptions")
+        const { error: updateSubError } = await (supabase as any)
+      .from("provider_subscriptions")
           .update({
             status: "expired",
             auto_renew: false,
@@ -72,8 +72,8 @@ export async function GET(request: NextRequest) {
         }
 
         // Downgrade provider to free tier
-        const { error: updateProviderError } = await supabase
-          .from("providers")
+        const { error: updateProviderError } = await (supabase as any)
+      .from("providers")
           .update({
             subscription_tier: "free",
             promo_expires_at: null, // Clear any promo
@@ -91,8 +91,8 @@ export async function GET(request: NextRequest) {
         const now = new Date();
         const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-        const { error: resetBidsError } = await supabase
-          .from("providers")
+        const { error: resetBidsError } = await (supabase as any)
+      .from("providers")
           .update({
             free_bids_used_this_month: 0,
             free_bids_reset_at: nextMonth.toISOString(),
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
     const threeDaysLater = new Date(now);
     threeDaysLater.setDate(threeDaysLater.getDate() + 3);
 
-    const { data: dueSubscriptions, error: fetchError } = await supabase
+    const { data: dueSubscriptions, error: fetchError } = await (supabase as any)
       .from("provider_subscriptions")
       .select(
         `
@@ -217,8 +217,8 @@ export async function POST(request: NextRequest) {
         // For now, we'll just extend the subscription
         // In production, this should trigger a payment request
 
-        const { error: updateError } = await supabase
-          .from("provider_subscriptions")
+        const { error: updateError } = await (supabase as any)
+      .from("provider_subscriptions")
           .update({
             expires_at: newExpiry.toISOString(),
           })

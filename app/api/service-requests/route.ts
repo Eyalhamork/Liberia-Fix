@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const customerId = searchParams.get("customer_id");
 
   // Public endpoint - anyone can view active requests
-  let query = supabase
+  let query = (supabase as any)
     .from("service_requests")
     .select(
       `
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
   expiresAt.setHours(expiresAt.getHours() + SERVICE_REQUEST_CONSTANTS.REQUEST_DURATION_HOURS);
 
   // Create service request
-  const { data: serviceRequest, error: createError } = await supabase
+  const { data: serviceRequest, error: createError } = await (supabase as any)
     .from("service_requests")
     .insert({
       customer_id: user.id,
@@ -146,7 +146,7 @@ export async function PUT(request: Request) {
   }
 
   // Verify request belongs to user
-  const { data: serviceRequest, error: fetchError } = await supabase
+  const { data: serviceRequest, error: fetchError } = await (supabase as any)
     .from("service_requests")
     .select("*")
     .eq("id", request_id)
@@ -168,7 +168,7 @@ export async function PUT(request: Request) {
   }
 
   // Update request to active
-  const { data: updatedRequest, error: updateError } = await supabase
+  const { data: updatedRequest, error: updateError } = await (supabase as any)
     .from("service_requests")
     .update({
       status: "active",
@@ -185,14 +185,14 @@ export async function PUT(request: Request) {
   }
 
   // Get customer name
-  const { data: customer } = await supabase
+  const { data: customer } = await (supabase as any)
     .from("profiles")
     .select("full_name")
     .eq("id", user.id)
     .single();
 
   // Get category info
-  const { data: category } = await supabase
+  const { data: category } = await (supabase as any)
     .from("service_categories")
     .select("name")
     .eq("id", serviceRequest.service_category_id)
@@ -200,7 +200,7 @@ export async function PUT(request: Request) {
 
   // 🔔 BATCH 2 TRIGGER 1: New Custom Request Posted
   // Get all providers in matching category
-  const { data: providers } = await supabase
+  const { data: providers } = await (supabase as any)
     .from("provider_services")
     .select(
       `

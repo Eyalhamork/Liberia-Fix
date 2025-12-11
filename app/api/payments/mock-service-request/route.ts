@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify service request exists and belongs to user
-    const { data: serviceRequest, error: fetchError } = await supabase
+    const { data: serviceRequest, error: fetchError } = await (supabase as any)
       .from("service_requests")
       .select("*")
       .eq("id", service_request_id)
@@ -59,8 +59,8 @@ export async function POST(request: NextRequest) {
 
     if (paymentSuccess) {
       // Create transaction record
-      const { data: transaction, error: transactionError } = await supabase
-        .from("transactions")
+      const { data: transaction, error: transactionError } = await (supabase as any)
+      .from("transactions")
         .insert({
           user_id: user.id,
           type: "booking_fee", // Or create new type "service_request_posting"
@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
-      const { error: updateError } = await supabase
-        .from("service_requests")
+      const { error: updateError } = await (supabase as any)
+      .from("service_requests")
         .update({
           payment_status: "completed",
           status: "active",

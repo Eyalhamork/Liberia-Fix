@@ -58,8 +58,8 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const { data, error } = await supabase
-    .from("providers")
+  const { data, error } = await (supabase as any)
+      .from("providers")
     .insert({
       user_id: user.id,
       ...body,

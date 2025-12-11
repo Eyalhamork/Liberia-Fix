@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if provider profile already exists
-    const { data: existingProvider } = await supabase
+    const { data: existingProvider } = await (supabase as any)
       .from("providers")
       .select("id")
       .eq("user_id", user.id)
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create provider profile
-    const { data: newProvider, error: insertError } = await supabase
+    const { data: newProvider, error: insertError } = await (supabase as any)
       .from("providers")
       .insert({
         user_id: user.id,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user type to provider
-    await supabase
+    await (supabase as any)
       .from("users")
       .update({ user_type: "provider" })
       .eq("id", user.id);

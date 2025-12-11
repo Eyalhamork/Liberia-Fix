@@ -183,6 +183,7 @@ export interface BookingPaymentOptions {
   can_use_wallet: boolean;
   requires_payment: boolean;
   payment_amount: number;
+  has_membership?: boolean;
 }
 
 export function getBookingPaymentOptions(

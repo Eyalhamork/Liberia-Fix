@@ -118,7 +118,7 @@ export async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegis
   }
 
   try {
-    return await navigator.serviceWorker.getRegistration();
+    return (await navigator.serviceWorker.getRegistration()) || null;
   } catch (error) {
     console.error('Error getting service worker registration:', error);
     return null;

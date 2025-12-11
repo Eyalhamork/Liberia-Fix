@@ -22,8 +22,8 @@ export default function AdminProvidersPage() {
   useEffect(() => {
     async function fetchProviders() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from("providers")
+      const { data } = await (supabase as any)
+      .from("providers")
         .select(
           `
           *,

@@ -92,14 +92,30 @@ function DashboardContent() {
 
   const fetchServiceRequests = async (signal: AbortSignal) => {
     try {
-      const { data, error } = await supabase
-        .from("service_requests")
+      const { data, error } = await (supabase as any)
+      .from("service_requests")
         .select("*")
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .in("status", ["draft", "active"])
         .order("created_at", { ascending: false })
         .limit(3)
-        .abortSignal(signal);
+        .abortSignal(signal) as {
+          data: Array<{
+            id: string;
+            title: string;
+            description: string;
+            category: string;
+            location: string;
+            budget_min: number;
+            budget_max: number;
+            urgency: string;
+            bid_count: number;
+            status: string;
+            payment_status: string;
+            created_at: string;
+          }> | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted) {
         if (error) throw error;
@@ -117,8 +133,8 @@ function DashboardContent() {
 
   const fetchBookings = async (signal: AbortSignal) => {
     try {
-      const { data, error } = await supabase
-        .from("bookings")
+      const { data, error } = await (supabase as any)
+      .from("bookings")
         .select(
           `
           id,
@@ -132,10 +148,26 @@ function DashboardContent() {
           )
         `
         )
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .order("created_at", { ascending: false })
         .limit(3)
-        .abortSignal(signal);
+        .abortSignal(signal) as {
+          data: Array<{
+            id: string;
+            service_description: string | null;
+            booking_status: string;
+            booking_date: string;
+            created_at: string;
+            provider: {
+              business_name: string | null;
+              profile: {
+                full_name: string | null;
+                avatar_url: string | null;
+              } | null;
+            } | null;
+          }> | null;
+          error: any;
+        };
 
       if (isMountedRef.current && !signal.aborted) {
         if (error) throw error;
@@ -170,26 +202,28 @@ function DashboardContent() {
 
   const fetchStats = async (signal: AbortSignal) => {
     try {
-      const { count: activeCount } = await supabase
-        .from("service_requests")
+      const { count: activeCount } = await (supabase as any)
+      .from("service_requests")
         .select("*", { count: "exact", head: true })
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .in("status", ["draft", "active"])
         .abortSignal(signal);
 
-      const { data: requestsWithBids } = await supabase
-        .from("service_requests")
+      const { data: requestsWithBids } = await (supabase as any)
+      .from("service_requests")
         .select("bid_count")
-        .eq("customer_id", user?.id)
-        .abortSignal(signal);
+        .eq("customer_id", user?.id as string)
+        .abortSignal(signal) as {
+          data: Array<{ bid_count: number }> | null;
+        };
 
       const totalBids =
         requestsWithBids?.reduce((sum, r) => sum + r.bid_count, 0) || 0;
 
-      const { count: bookingsCount } = await supabase
-        .from("bookings")
+      const { count: bookingsCount } = await (supabase as any)
+      .from("bookings")
         .select("*", { count: "exact", head: true })
-        .eq("customer_id", user?.id)
+        .eq("customer_id", user?.id as string)
         .abortSignal(signal);
 
       if (isMountedRef.current && !signal.aborted) {

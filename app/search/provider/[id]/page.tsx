@@ -35,7 +35,7 @@ import {
 import { toast } from "sonner";
 
 export default function ProviderProfilePage() {
-  const params = useParams();
+  const params = useParams() as any;
   const router = useRouter();
   const { user } = useAuth();
   const supabase = createClient();
@@ -69,8 +69,8 @@ export default function ProviderProfilePage() {
       setLoading(true);
       setError(null);
 
-      const { data, error: fetchError } = await supabase
-        .from("providers")
+      const { data, error: fetchError } = await (supabase as any)
+      .from("providers")
         .select(
           `
           *,
@@ -109,13 +109,13 @@ export default function ProviderProfilePage() {
   const checkIfContactUnlocked = async () => {
     if (!user) return;
 
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("bookings")
       .select("id")
-      .eq("customer_id", user.id)
-      .eq("provider_id", providerId)
+      .eq("customer_id", user.id as string)
+      .eq("provider_id", providerId as string)
       .eq("payment_status", "completed")
-      .single();
+      .single() as { data: any; error: any };
 
     setHasUnlockedContact(!!data);
   };
@@ -964,8 +964,8 @@ export default function ProviderProfilePage() {
                     // In production, this would redirect to payment gateway
 
                     // Simulate transaction record
-                    await supabase.from("transactions").insert({
-                      user_id: user?.id,
+                    await (supabase as any).from("transactions").insert({
+                      user_id: user?.id as string,
                       type: "booking_fee",
                       amount: 1.0,
                       status: "completed",
@@ -976,12 +976,12 @@ export default function ProviderProfilePage() {
                         provider_id: providerId,
                         simulation: true,
                       },
-                    });
+                    } as any);
 
                     // Update booking to completed
                     if (data.booking?.id) {
-                      await supabase
-                        .from("bookings")
+                      await (supabase
+                        .from("bookings") as any)
                         .update({
                           payment_status: "completed",
                           transaction_id: `MOCK_${Date.now()}`,

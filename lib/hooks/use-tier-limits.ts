@@ -70,11 +70,19 @@ export function useTierLimits(userId: string | undefined) {
   const fetchTierStatus = async () => {
     try {
       // Get provider data
-      const { data: provider, error: providerError } = await supabase
-        .from("providers")
+      const { data: provider, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .single() as {
+          data: {
+            id: string;
+            subscription_tier: "free" | "pro" | "elite";
+            promo_expires_at: string | null;
+            free_bids_used_this_month: number | null;
+          } | null;
+          error: any;
+        };
 
       if (providerError || !provider) {
         setLoading(false);
@@ -90,14 +98,14 @@ export function useTierLimits(userId: string | undefined) {
       const limits = TIER_LIMITS[effectiveTier];
 
       // Get usage counts
-      const { count: categoryCount } = await supabase
-        .from("provider_categories")
+      const { count: categoryCount } = await (supabase as any)
+      .from("provider_categories")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
 
-      const { count: photoCount } = await supabase
-        .from("provider_photos")
+      const { count: photoCount } = await (supabase as any)
+      .from("provider_photos")
         .select("*", { count: "exact", head: true })
         .eq("provider_id", provider.id)
         .eq("status", "active");
@@ -115,17 +123,22 @@ export function useTierLimits(userId: string | undefined) {
       }
 
       // Get subscription info if pro/elite
-      let subscriptionInfo = undefined;
+      let subscriptionInfo: { expiresAt: string; autoRenew: boolean } | undefined = undefined;
       if (provider.subscription_tier !== "free" && !promoActive) {
-        const { data: subscription } = await supabase
-          .from("provider_subscriptions")
+        const { data: subscription } = await (supabase as any)
+      .from("provider_subscriptions")
           .select("expires_at, auto_renew")
           .eq("provider_id", provider.id)
           .eq("status", "active")
-          .single();
+          .single() as {
+            data: { expires_at: string; auto_renew: boolean } | null;
+          };
 
         if (subscription) {
-          subscriptionInfo = subscription;
+          subscriptionInfo = {
+            expiresAt: subscription.expires_at,
+            autoRenew: subscription.auto_renew,
+          };
         }
       }
 

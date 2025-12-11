@@ -107,12 +107,12 @@ function ProviderBidsPageContent() {
       }
 
       // Get provider ID
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
+      const { data: providerData, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("id")
         .eq("user_id", user?.id)
         .abortSignal(signal)
-        .single();
+        .single() as { data: { id: string } | null; error: any };
 
       if (signal.aborted) return;
 
@@ -152,7 +152,32 @@ function ProviderBidsPageContent() {
         query = query.eq("status", filter);
       }
 
-      const { data: bidsData, error: bidsError } = await query;
+      const { data: bidsData, error: bidsError } = await query as {
+        data: Array<{
+          id: string;
+          provider_id: string;
+          amount: number;
+          estimated_duration: string;
+          availability: string;
+          message: string;
+          status: string;
+          created_at: string;
+          selected_at: string | null;
+          service_requests: {
+            id: string;
+            title: string;
+            description: string;
+            location: string;
+            budget_min: number;
+            budget_max: number;
+            urgency: string;
+            status: string;
+            customer_id: string;
+            service_category_id: string;
+          };
+        }> | null;
+        error: any;
+      };
 
       if (signal.aborted) return;
 
@@ -170,12 +195,19 @@ function ProviderBidsPageContent() {
               bid.status === "selected" &&
               bid.service_requests?.customer_id
             ) {
-              const { data: profile } = await supabase
-                .from("profiles")
+              const { data: profile } = await (supabase as any)
+      .from("profiles")
                 .select("full_name, phone, email, avatar_url")
                 .eq("id", bid.service_requests.customer_id)
                 .abortSignal(signal)
-                .single();
+                .single() as {
+                  data: {
+                    full_name: string;
+                    phone: string;
+                    email: string;
+                    avatar_url: string;
+                  } | null;
+                };
 
               if (signal.aborted) return null;
 

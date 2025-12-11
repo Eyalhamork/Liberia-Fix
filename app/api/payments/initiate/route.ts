@@ -12,13 +12,13 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get authenticated user
-    const supabase = createClient();
+    const supabase = await createClient();
     console.log("🔐 [AUTH] Checking user authentication");
 
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser() as any as { data: { user: any }; error: any };
 
     if (authError || !user) {
       console.error("❌ [AUTH] Authentication failed:", authError);
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     const result = await paymentService.requestPayment({
       amount: body.amount,
-      currency: (process.env.MTN_MOMO_CURRENCY as any) || "EUR",
+      currency: (process.env.MTN_MOMO_CURRENCY || "EUR") as any,
       referenceId: crypto.randomUUID(),
       phoneNumber: body.payerPhone,
       payerMessage: "Service booking payment",
@@ -138,12 +138,6 @@ export async function POST(request: NextRequest) {
       referenceId: result.referenceId,
     });
 
-    console.log("📤 [PAYMENT] Payment initiation result:", {
-      success: result.success,
-      hasError: !!result.error,
-      hasTransactionId: !!result.transactionId,
-    });
-
     if (!result.success) {
       console.error("❌ [PAYMENT] Payment initiation failed:", result.error);
       return NextResponse.json({ error: result.error }, { status: 400 });
@@ -153,14 +147,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     console.error("💥 [ERROR] Unexpected error in payment initiation:");
-    console.error("  - Error type:", error?.constructor?.name);
-    console.error("  - Error message:", error?.message);
-    console.error("  - Stack trace:", error?.stack);
+    console.error("  - Error type:", (error as any)?.constructor?.name);
+    console.error("  - Error message:", (error as any)?.message);
+    console.error("  - Stack trace:", (error as any)?.stack);
 
     return NextResponse.json(
       {
         error: "Internal server error",
-        details: error?.message || "Unknown error",
+        details: (error as any)?.message || "Unknown error",
       },
       { status: 500 }
     );

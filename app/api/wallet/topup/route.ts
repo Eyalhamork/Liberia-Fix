@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createMTNMoMoService } from "@/lib/services/mtn-momo.service";
 import { getCreditPackageById } from "@/lib/constants/wallet";
 import { notificationService } from "@/lib/services/notification-service";
+import type { Transaction } from "@/lib/types/database";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,11 +44,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user profile
-    const { data: profile } = await supabase
+    const { data: profile } = (await (supabase as any)
       .from("profiles")
       .select("full_name, phone, wallet_balance")
       .eq("id", user.id)
-      .single();
+      .single()) as { data: { full_name: string | null; phone: string | null; wallet_balance: number | null } | null };
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
 
     // Create transaction record (matching working subscription format)
     // NOTE: Using "booking_fee" type since "wallet_topup" not in DB constraint yet
-    const { data: transaction, error: transactionError } = await supabase
+    const { data: transaction, error: transactionError } = (await (supabase as any)
       .from("transactions")
       .insert({
         user_id: user.id,
@@ -78,21 +79,21 @@ export async function POST(request: NextRequest) {
         },
       })
       .select()
-      .single();
+      .single()) as { data: Transaction | null; error: any };
 
-    if (transactionError) {
+    if (transactionError || !transaction) {
       console.error("❌ Transaction creation error:", {
         error: transactionError,
-        code: transactionError.code,
-        message: transactionError.message,
-        details: transactionError.details,
-        hint: transactionError.hint,
+        code: transactionError?.code,
+        message: transactionError?.message,
+        details: transactionError?.details,
+        hint: transactionError?.hint,
       });
       return NextResponse.json(
         {
           error: "Failed to create transaction",
-          details: transactionError.message,
-          code: transactionError.code,
+          details: transactionError?.message,
+          code: transactionError?.code,
         },
         { status: 500 }
       );
@@ -114,8 +115,8 @@ export async function POST(request: NextRequest) {
 
       if (!paymentSuccess) {
         // Payment failed
-        await supabase
-          .from("transactions")
+        await (supabase as any)
+      .from("transactions")
           .update({
             status: "failed",
             error_message: "Payment declined (simulated)",
@@ -134,8 +135,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Payment successful - update transaction
-      await supabase
-        .from("transactions")
+      await (supabase as any)
+      .from("transactions")
         .update({
           status: "completed",
           external_transaction_id: `WALLET_MOCK_${Date.now()}`,
@@ -144,7 +145,7 @@ export async function POST(request: NextRequest) {
 
       // Add credits to wallet using RPC function
       const totalCredits = creditPackage.credits + creditPackage.bonus;
-      const { error: creditError } = await supabase.rpc("add_wallet_credits", {
+      const { error: creditError } = (await (supabase as any).rpc("add_wallet_credits", {
         p_user_id: user.id,
         p_amount: creditPackage.amount,
         p_credits: totalCredits,
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
           base_credits: creditPackage.credits,
           bonus_credits: creditPackage.bonus,
         },
-      });
+      })) as { data: string | null; error: any };
 
       if (creditError) {
         console.error("❌ Failed to add credits:", creditError);
@@ -171,11 +172,11 @@ export async function POST(request: NextRequest) {
       }
 
       // Get updated balance
-      const { data: updatedProfile } = await supabase
-        .from("profiles")
+      const { data: updatedProfile } = (await (supabase as any)
+      .from("profiles")
         .select("wallet_balance")
         .eq("id", user.id)
-        .single();
+        .single()) as { data: { wallet_balance: number | null } | null };
 
       console.log("✅ Credits added successfully:", {
         credits: totalCredits,
@@ -229,7 +230,7 @@ export async function POST(request: NextRequest) {
 
       const mtnService = createMTNMoMoService();
 
-      const paymentResult = await mtnService.initiatePayment({
+      const paymentResult = await (mtnService as any).initiatePayment({
         amount: creditPackage.amount,
         currency: "USD",
         phoneNumber,
@@ -239,8 +240,8 @@ export async function POST(request: NextRequest) {
 
       if (!paymentResult.success) {
         // Update transaction to failed
-        await supabase
-          .from("transactions")
+        await (supabase as any)
+      .from("transactions")
           .update({
             status: "failed",
             error_message: paymentResult.error,
@@ -254,8 +255,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Update transaction with reference
-      await supabase
-        .from("transactions")
+      await (supabase as any)
+      .from("transactions")
         .update({
           external_transaction_id: paymentResult.referenceId,
         })

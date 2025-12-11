@@ -41,8 +41,8 @@ export function NotificationPermissionPrompt() {
         }
 
         // Check if user has active subscription in database
-        const { data, error } = await supabase
-          .from("notification_subscriptions")
+        const { data, error } = await (supabase as any)
+      .from("notification_subscriptions")
           .select("id, active")
           .eq("user_id", user.id)
           .eq("active", true)
@@ -114,8 +114,8 @@ export function NotificationPermissionPrompt() {
       }
 
       // Deactivate subscription in database
-      const { error } = await supabase
-        .from("notification_subscriptions")
+      const { error } = await (supabase as any)
+      .from("notification_subscriptions")
         .update({ active: false })
         .eq("user_id", user.id)
         .eq("device_id", deviceId);

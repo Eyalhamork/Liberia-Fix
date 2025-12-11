@@ -96,7 +96,7 @@ function CustomerRequestDetailContent() {
     isMountedRef.current = true;
     const abortController = new AbortController();
 
-    if (user && params.id) {
+    if (user && params?.id) {
       fetchRequestAndBids(abortController.signal);
     }
 
@@ -104,31 +104,31 @@ function CustomerRequestDetailContent() {
       isMountedRef.current = false;
       abortController.abort();
     };
-  }, [user?.id, params.id]);
+  }, [user?.id, params?.id]);
 
   const incrementViewsCount = async () => {
     // Only increment once per page load
-    if (viewsIncrementedRef.current) return;
+    if (viewsIncrementedRef.current || !params?.id) return;
     viewsIncrementedRef.current = true;
 
     try {
-      const { error } = await supabase.rpc("increment_request_views", {
-        request_id: params.id,
-      });
+      const { error } = await (supabase as any).rpc("increment_request_views", {
+        request_id: params?.id as string,
+      } as any);
 
       // If RPC doesn't exist, use direct update
       if (error && error.message.includes("function")) {
-        const { data: currentRequest } = await supabase
-          .from("service_requests")
+        const { data: currentRequest } = await (supabase as any)
+      .from("service_requests")
           .select("views_count")
-          .eq("id", params.id)
-          .single();
+          .eq("id", params?.id as string)
+          .single() as { data: { views_count: number | null } | null };
 
         if (currentRequest) {
-          await supabase
-            .from("service_requests")
-            .update({ views_count: (currentRequest.views_count || 0) + 1 })
-            .eq("id", params.id);
+          await (supabase
+            .from("service_requests") as any)
+            .update({ views_count: (currentRequest.views_count || 0) + 1 } as any)
+            .eq("id", params?.id as string);
         }
       }
     } catch (err) {
@@ -137,17 +137,19 @@ function CustomerRequestDetailContent() {
   };
 
   const fetchRequestAndBids = async (signal: AbortSignal) => {
+    if (!params?.id) return;
+
     try {
       console.log("🔍 Fetching request:", params.id);
 
       // Fetch request
-      const { data: requestData, error: requestError } = await supabase
-        .from("service_requests")
+      const { data: requestData, error: requestError } = await (supabase as any)
+      .from("service_requests")
         .select("*")
-        .eq("id", params.id)
-        .eq("customer_id", user?.id)
+        .eq("id", params.id as string)
+        .eq("customer_id", user?.id as string)
         .abortSignal(signal)
-        .single();
+        .single() as any as { data: ServiceRequest | null; error: any };
 
       if (signal.aborted) return;
 
@@ -162,12 +164,12 @@ function CustomerRequestDetailContent() {
 
       // Fetch category separately
       if (requestData.service_category_id) {
-        const { data: category } = await supabase
-          .from("service_categories")
+        const { data: category } = await (supabase as any)
+      .from("service_categories")
           .select("name, icon")
           .eq("id", requestData.service_category_id)
           .abortSignal(signal)
-          .single();
+          .single() as any as { data: { name: string; icon: string } | null };
 
         if (signal.aborted) return;
 
@@ -189,8 +191,8 @@ function CustomerRequestDetailContent() {
 
       // Fetch bids
       console.log("🔍 Fetching bids...");
-      const { data: bidsData, error: bidsError } = await supabase
-        .from("service_request_bids")
+      const { data: bidsData, error: bidsError } = await (supabase as any)
+      .from("service_request_bids")
         .select(
           `
           id,
@@ -203,9 +205,21 @@ function CustomerRequestDetailContent() {
           created_at
         `
         )
-        .eq("request_id", params.id)
+        .eq("request_id", params.id as string)
         .abortSignal(signal)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }) as any as {
+          data: Array<{
+            id: string;
+            provider_id: string;
+            amount: number;
+            message: string;
+            availability: string;
+            estimated_duration: string;
+            status: string;
+            created_at: string;
+          }> | null;
+          error: any;
+        };
 
       if (signal.aborted) return;
 
@@ -223,22 +237,37 @@ function CustomerRequestDetailContent() {
             if (signal.aborted) return null;
 
             // Get provider info
-            const { data: providerData } = await supabase
-              .from("providers")
+            const { data: providerData } = await (supabase as any)
+      .from("providers")
               .select("id, business_name, total_rating, review_count, user_id")
               .eq("id", bid.provider_id)
               .abortSignal(signal)
-              .single();
+              .single() as {
+                data: {
+                  id: string;
+                  business_name: string;
+                  total_rating: number;
+                  review_count: number;
+                  user_id: string;
+                } | null;
+              };
 
             if (signal.aborted) return null;
 
             // Get provider profile
-            const { data: profileData } = await supabase
-              .from("profiles")
+            const { data: profileData } = await (supabase as any)
+      .from("profiles")
               .select("full_name, avatar_url, phone, email")
-              .eq("id", providerData?.user_id)
+              .eq("id", providerData?.user_id as string)
               .abortSignal(signal)
-              .single();
+              .single() as {
+                data: {
+                  full_name: string;
+                  avatar_url: string;
+                  phone: string;
+                  email: string;
+                } | null;
+              };
 
             if (signal.aborted) return null;
 
@@ -297,12 +326,12 @@ function CustomerRequestDetailContent() {
     setActionLoading(bidId);
 
     try {
-      const { error: updateError } = await supabase
-        .from("service_request_bids")
+      const { error: updateError } = await (supabase
+        .from("service_request_bids") as any)
         .update({
           status: "selected",
           selected_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", bidId);
 
       if (updateError) {
@@ -326,12 +355,13 @@ function CustomerRequestDetailContent() {
 
   const handleCloseRequest = async () => {
     if (!confirm("Close this request? No more bids will be accepted.")) return;
+    if (!params?.id) return;
 
     try {
-      const { error } = await supabase
-        .from("service_requests")
-        .update({ status: "closed", closed_at: new Date().toISOString() })
-        .eq("id", params.id);
+      const { error } = await (supabase
+        .from("service_requests") as any)
+        .update({ status: "closed", closed_at: new Date().toISOString() } as any)
+        .eq("id", params?.id as string);
 
       if (error) throw error;
 

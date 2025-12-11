@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current wallet balance
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from("profiles")
       .select("wallet_balance")
       .eq("id", user.id)
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use the deduct_wallet_credits function
-    const { data: result, error: deductError } = await supabase.rpc(
+    const { data: result, error: deductError } = await (supabase as any).rpc(
       "deduct_wallet_credits",
       {
         p_user_id: user.id,
@@ -70,14 +70,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the transaction that was just created
-    const { data: transaction } = await supabase
+    const { data: transaction } = await (supabase as any)
       .from("wallet_transactions")
       .select("*")
       .eq("id", result)
       .single();
 
     // Update booking to mark as paid with wallet
-    const { error: bookingError } = await supabase
+    const { error: bookingError } = await (supabase as any)
       .from("bookings")
       .update({
         paid_with_wallet: true,
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get updated balance
-    const { data: updatedProfile } = await supabase
+    const { data: updatedProfile } = await (supabase as any)
       .from("profiles")
       .select("wallet_balance")
       .eq("id", user.id)

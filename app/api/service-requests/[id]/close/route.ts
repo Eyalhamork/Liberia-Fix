@@ -20,8 +20,8 @@ export async function POST(
   const requestId = params.id;
 
   // Verify service request belongs to user
-  const { data: serviceRequest, error: requestError } = await supabase
-    .from("service_requests")
+  const { data: serviceRequest, error: requestError } = await (supabase as any)
+      .from("service_requests")
     .select("*")
     .eq("id", requestId)
     .eq("customer_id", user.id)
@@ -35,8 +35,8 @@ export async function POST(
   }
 
   // Close the request
-  const { error: updateError } = await supabase
-    .from("service_requests")
+  const { error: updateError } = await (supabase as any)
+      .from("service_requests")
     .update({
       status: "closed",
       closed_at: new Date().toISOString(),
@@ -49,15 +49,15 @@ export async function POST(
 
   // 🔔 BATCH 2 TRIGGER 9: Missed Opportunity (notify free providers who viewed)
   // Get all free providers who viewed this request but didn't respond
-  const { data: category } = await supabase
-    .from("service_categories")
+  const { data: category } = await (supabase as any)
+      .from("service_categories")
     .select("name")
     .eq("id", serviceRequest.service_category_id)
     .single();
 
   // Get free providers who have this category but didn't respond
-  const { data: providerServices } = await supabase
-    .from("provider_services")
+  const { data: providerServices } = await (supabase as any)
+      .from("provider_services")
     .select(
       `
       providers:provider_id (
@@ -70,8 +70,8 @@ export async function POST(
     .eq("service_category_id", serviceRequest.service_category_id);
 
   // Get list of providers who already responded
-  const { data: bids } = await supabase
-    .from("service_request_bids")
+  const { data: bids } = await (supabase as any)
+      .from("service_request_bids")
     .select("provider_id")
     .eq("request_id", requestId);
 

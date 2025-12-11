@@ -6,7 +6,7 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // Verify admin authentication
@@ -19,11 +19,11 @@ export async function POST(
     }
 
     // Check if user is admin
-    const { data: profile } = await supabase
+    const { data: profile } = await (supabase as any)
       .from("profiles")
       .select("user_type")
       .eq("id", user.id)
-      .single();
+      .single() as { data: { user_type: string | null } | null };
 
     if (!profile || profile.user_type !== "admin") {
       return NextResponse.json(
@@ -33,11 +33,19 @@ export async function POST(
     }
 
     // Get verification document
-    const { data: verification, error: fetchError } = await supabase
+    const { data: verification, error: fetchError } = await (supabase as any)
       .from("provider_verification_documents")
       .select("*, providers(user_id, business_name)")
       .eq("id", params.id)
-      .single();
+      .single() as {
+        data: {
+          id: string;
+          provider_id: string;
+          document_type: string;
+          providers: { user_id: string; business_name: string };
+        } | null;
+        error: any;
+      };
 
     if (fetchError || !verification) {
       return NextResponse.json(
@@ -47,7 +55,7 @@ export async function POST(
     }
 
     // Update verification status to approved
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from("provider_verification_documents")
       .update({
         status: "approved",
@@ -61,7 +69,7 @@ export async function POST(
     }
 
     // Update provider status
-    const { error: providerError } = await supabase
+    const { error: providerError } = await (supabase as any)
       .from("providers")
       .update({
         verification_status: "verified",
@@ -74,7 +82,7 @@ export async function POST(
     }
 
     // Create notification for provider
-    await supabase.from("booking_notifications").insert({
+    await (supabase as any).from("booking_notifications").insert({
       user_id: verification.providers.user_id,
       type: "verification_approved",
       title: "Account Verified!",
@@ -84,7 +92,7 @@ export async function POST(
     });
 
     // Log admin action
-    await supabase.from("admin_activity_log").insert({
+    await (supabase as any).from("admin_activity_log").insert({
       admin_id: user.id,
       action: "approve_verification",
       target_type: "verification_document",

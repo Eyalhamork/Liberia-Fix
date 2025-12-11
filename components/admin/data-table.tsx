@@ -63,11 +63,11 @@ export default function DataTable<T extends { id: string }>({
     onSearch?.(query);
   };
 
-  const getCellValue = (item: T, column: Column<T>) => {
+  const getCellValue = (item: T, column: Column<T>): React.ReactNode => {
     if (typeof column.accessor === "function") {
       return column.accessor(item);
     }
-    return item[column.accessor];
+    return item[column.accessor] as React.ReactNode;
   };
 
   return (

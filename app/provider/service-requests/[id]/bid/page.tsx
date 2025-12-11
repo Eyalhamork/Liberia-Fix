@@ -75,23 +75,30 @@ function ProviderBidPageContent() {
       return;
     }
 
-    if (params.id) {
+    if (params?.id) {
       fetchRequest();
       fetchProviderData();
     }
-  }, [user, profile, params.id]);
+  }, [user, profile, params?.id, router, supabase]);
 
   const fetchProviderData = async () => {
     try {
       console.log("🔍 Fetching provider data for user:", user?.id);
 
-      const { data, error } = await supabase
-        .from("providers")
+      const { data, error } = await (supabase as any)
+      .from("providers")
         .select(
           "subscription_tier, free_bids_used_this_month, free_bids_reset_at"
         )
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as {
+          data: {
+            subscription_tier: string;
+            free_bids_used_this_month: number;
+            free_bids_reset_at: string | null;
+          } | null;
+          error: any;
+        };
 
       console.log("📊 Provider data:", data);
       console.log("❌ Provider error:", error);
@@ -127,8 +134,7 @@ function ProviderBidPageContent() {
         console.log("🔄 Resetting free bids for new month");
 
         // Reset free bids for new month
-        const { error: updateError } = await supabase
-          .from("providers")
+        const { error: updateError } = await (supabase.from("providers") as any)
           .update({
             free_bids_used_this_month: 0,
             free_bids_reset_at: new Date(
@@ -136,8 +142,8 @@ function ProviderBidPageContent() {
               new Date().getMonth() + 1,
               1
             ).toISOString(),
-          })
-          .eq("user_id", user?.id);
+          } as any)
+          .eq("user_id", user?.id as string);
 
         if (!updateError) {
           data.free_bids_used_this_month = 0;
@@ -163,14 +169,16 @@ function ProviderBidPageContent() {
   };
 
   const fetchRequest = async () => {
+    if (!params?.id) return;
+
     try {
-      const { data, error } = await supabase
-        .from("service_requests")
+      const { data, error } = await (supabase as any)
+      .from("service_requests")
         .select("*")
-        .eq("id", params.id)
+        .eq("id", params?.id as string)
         .eq("payment_status", "completed")
         .eq("status", "active")
-        .single();
+        .single() as { data: ServiceRequest | null; error: any };
 
       if (error) throw error;
       setRequest(data);
@@ -212,11 +220,11 @@ function ProviderBidPageContent() {
       }
 
       // Get provider ID
-      const { data: providerRecord, error: providerError } = await supabase
-        .from("providers")
+      const { data: providerRecord, error: providerError } = await (supabase as any)
+      .from("providers")
         .select("id")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user?.id as string)
+        .single() as { data: { id: string } | null; error: any };
 
       if (providerError || !providerRecord) {
         throw new Error("Could not find provider profile");
@@ -225,19 +233,18 @@ function ProviderBidPageContent() {
       console.log("💾 Saving bid to database...");
 
       // Create bid record
-      const { data: bidData, error: bidError } = await supabase
-        .from("service_request_bids")
+      const { data: bidData, error: bidError } = await (supabase.from("service_request_bids") as any)
         .insert({
-          request_id: params.id,
+          request_id: params?.id as string,
           provider_id: providerRecord.id,
           amount: parseFloat(bidAmount),
           message: message.trim(),
           availability: availability || null,
           estimated_duration: estimatedDuration || null,
           status: "pending",
-        })
+        } as any)
         .select()
-        .single();
+        .single() as { data: any; error: any };
 
       if (bidError) {
         console.error("Bid error:", bidError);
@@ -256,12 +263,11 @@ function ProviderBidPageContent() {
       if (!isProProvider && remainingFreeBids > 0) {
         console.log("📈 Incrementing free bid counter...");
 
-        const { error: updateError } = await supabase
-          .from("providers")
+        const { error: updateError } = await (supabase.from("providers") as any)
           .update({
             free_bids_used_this_month: freeBidsUsed + 1,
-          })
-          .eq("user_id", user?.id);
+          } as any)
+          .eq("user_id", user?.id as string);
 
         if (updateError) {
           console.error("Error updating free bid count:", updateError);
@@ -332,7 +338,7 @@ function ProviderBidPageContent() {
 
           <LockedRequestCard
             request={{
-              id: parseInt(params.id as string),
+              id: parseInt(params?.id as string),
               title: request.title,
               category: request.category,
               budgetMin: request.budget_min,

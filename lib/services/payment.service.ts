@@ -136,11 +136,11 @@ export class MTNMoMoService {
       const data = await response.json();
 
       // Cache token (expires_in is in seconds, subtract 60s buffer)
-      this.accessToken = data.access_token;
+      this.accessToken = data.access_token || "";
       this.tokenExpiry = new Date(Date.now() + (data.expires_in - 60) * 1000);
 
       console.log("✅ [MTN MOMO] Access token obtained");
-      return this.accessToken;
+      return this.accessToken!;
     } catch (error: any) {
       console.error("❌ [MTN MOMO] Token fetch failed:", error);
       throw error;
